@@ -211,6 +211,8 @@ The project includes Vercel-ready files:
 - `vercel.json` routes all requests through the FastAPI app so `/`, `/api/health`, `/styles.css`, and `/app.js` keep working.
 - Root `requirements.txt` points Vercel to the backend Python dependencies.
 
+The Vercel config intentionally avoids the legacy `builds` field, so dashboard Build and Development Settings remain usable and the deploy warning about unused build settings does not appear.
+
 ### Deploy from GitHub
 
 1. Push this project to a GitHub repository.
