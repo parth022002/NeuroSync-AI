@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.env
+.venv/
+venv/
+env/
+node_modules/
+.git/
+.gitignore
+Backend/*.log
+Backend/*.err.log
+*.tmp
+*.bak

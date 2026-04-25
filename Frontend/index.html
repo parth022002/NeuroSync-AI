@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="neon">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NeuroSync AI</title>
+    <meta
+      name="description"
+      content="NeuroSync AI v2 immersive frontend for gesture, face, voice, analytics, and decision intelligence."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Orbitron:wght@500;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="ambient-layer" aria-hidden="true">
+      <div class="ambient-gradient"></div>
+      <div class="ambient-grid"></div>
+      <div class="ambient-orb orb-one"></div>
+      <div class="ambient-orb orb-two"></div>
+      <div class="ambient-orb orb-three"></div>
+      <div class="scanlines"></div>
+    </div>
+
+    <div class="start-overlay" id="startOverlay">
+      <div class="start-shell panel">
+        <div class="start-brand">
+          <img
+            class="brand-logo large"
+            src="../Assets/neurosync-logo.png"
+            alt="NeuroSync AI logo"
+          />
+          <div>
+            <p class="eyebrow">NeuroSync AI v2</p>
+            <h1>Enter the multimodal intelligence deck.</h1>
+            <p class="start-copy">
+              Built from the futuristic reference interfaces you shared, this experience
+              combines live perception, AI assistance, predictive analytics, and decision fusion
+              in one cinematic workspace.
+            </p>
+          </div>
+        </div>
+
+        <div class="feature-grid">
+          <article>
+            <span>Perception</span>
+            <strong>Hands + FaceMesh + Voice</strong>
+            <small>Live gesture, emotion, and transcript signals.</small>
+          </article>
+          <article>
+            <span>Analytics</span>
+            <strong>CSV KPI Intelligence</strong>
+            <small>Forecasting, charts, and AI-generated observations.</small>
+          </article>
+          <article>
+            <span>Decision</span>
+            <strong>Signal Fusion Engine</strong>
+            <small>Gesture, emotion, voice, and analytics combined.</small>
+          </article>
+          <article>
+            <span>Assistant</span>
+            <strong>Context-Aware Copilot</strong>
+            <small>Ready for local logic or future FastAPI / LLM wiring.</small>
+          </article>
+        </div>
+
+        <div class="start-actions">
+          <button class="primary-btn" id="startExperienceBtn">Launch Live Experience</button>
+          <button class="ghost-link" id="previewInterfaceBtn" type="button">Review Interface First</button>
+        </div>
+
+        <p class="start-note">
+          Camera access unlocks live gesture and emotion detection. Without it, NeuroSync still
+          runs in guided demo mode.
+        </p>
+      </div>
+    </div>
+
+    <div class="page-shell">
+      <header class="command-bar">
+        <a class="brand" href="#overview">
+          <img
+            class="brand-logo"
+            src="../Assets/neurosync-logo.png"
+            alt="NeuroSync AI logo"
+          />
+          <span class="brand-copy">
+            <strong>NeuroSync AI</strong>
+            <small>Multimodal Intelligent AR System</small>
+          </span>
+        </a>
+
+        <nav class="topnav" aria-label="Primary">
+          <a href="#overview">Overview</a>
+          <a href="#perception">Perception</a>
+          <a href="#assistant">Assistant</a>
+          <a href="#analytics">Analytics</a>
+          <a href="#intelligence">Decision</a>
+        </nav>
+
+        <div class="topbar-status">
+          <button class="status-action" id="topDownloadReportBtn" type="button">Download Report</button>
+          <span class="status-pill" id="systemStatusPill">System Ready</span>
+          <span class="status-pill alt" id="clockPill">--:--:--</span>
+        </div>
+      </header>
+
+      <div class="voice-indicator" id="voiceIndicator" data-state="standby" aria-live="polite">
+        <div class="voice-bars" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <span id="voiceIndicatorText">Voice Standby</span>
+      </div>
+
+      <main class="dashboard-grid">
+        <section class="hero-card panel" id="overview">
+          <div class="hero-copy">
+            <div class="hero-heading">
+              <p class="eyebrow">Gesture + Face + Voice + AI + Forecasting</p>
+              <span class="inline-chip" id="runtimeModeLabel">Hybrid Demo</span>
+            </div>
+
+            <h2>Human-like control, predictive insight, and adaptive response in one immersive UI.</h2>
+            <p class="hero-text">
+              NeuroSync AI v2 turns camera perception, emotional inference, voice, analytics,
+              and decision support into a single real-time operational surface.
+            </p>
+
+            <div class="hero-actions">
+              <button class="primary-btn" id="startCameraBtn">Start Camera</button>
+              <button class="secondary-btn" id="stopCameraBtn">Stop Camera</button>
+              <button class="secondary-btn" id="startVoiceBtn">Start Voice</button>
+              <button class="secondary-btn" id="loadSampleBtn">Load Sample Analytics</button>
+            </div>
+
+            <div class="hero-metrics">
+              <article>
+                <span>Live Gesture</span>
+                <strong id="heroGesture">Idle</strong>
+              </article>
+              <article>
+                <span>Emotion State</span>
+                <strong id="heroEmotion">Neutral</strong>
+              </article>
+              <article>
+                <span>Predicted Productivity</span>
+                <strong id="heroForecast">--</strong>
+              </article>
+              <article>
+                <span>Decision Confidence</span>
+                <strong id="heroConfidence">--</strong>
+              </article>
+            </div>
+          </div>
+
+          <aside class="hero-aside">
+            <div class="panel-heading compact">
+              <div>
+                <p class="panel-kicker">Interface Modes</p>
+                <h3>Theme Matrix</h3>
+              </div>
+            </div>
+
+            <div class="theme-switcher">
+              <button class="theme-chip active" data-theme="neon">Neon</button>
+              <button class="theme-chip" data-theme="aurora">Aurora</button>
+              <button class="theme-chip" data-theme="ember">Ember</button>
+              <button class="theme-chip" data-theme="cobalt">Cobalt</button>
+              <button class="theme-chip" data-theme="focus">Focus</button>
+              <button class="theme-chip" data-theme="calm">Calm</button>
+            </div>
+
+            <div class="status-grid">
+              <article>
+                <span>Camera</span>
+                <strong id="cameraHealth">Waiting</strong>
+              </article>
+              <article>
+                <span>Voice</span>
+                <strong id="voiceHealth">Standby</strong>
+              </article>
+              <article>
+                <span>Vision Models</span>
+                <strong id="visionHealth">Checking</strong>
+              </article>
+              <article>
+                <span>Analytics Engine</span>
+                <strong id="analyticsHealth">Cold Start</strong>
+              </article>
+            </div>
+          </aside>
+        </section>
+
+        <section class="assistant-panel panel" id="assistant">
+          <div class="panel-heading">
+            <div>
+              <p class="panel-kicker">AI Copilot</p>
+              <h2>Context-Aware Assistant</h2>
+            </div>
+            <span class="inline-chip" id="assistantModeBadge">Local Intelligence</span>
+          </div>
+
+          <div class="suggestion-row">
+            <button class="chip-btn" data-prompt="Summarize the current multimodal state.">
+              State Summary
+            </button>
+            <button class="chip-btn" data-prompt="What should I do based on the latest analytics?">
+              Recommended Action
+            </button>
+            <button class="chip-btn" data-prompt="How is productivity trending?">
+              Productivity Trend
+            </button>
+          </div>
+
+          <div class="chat-feed" id="chatFeed" aria-live="polite"></div>
+
+          <form class="chat-form" id="chatForm">
+            <label class="sr-only" for="chatInput">Ask NeuroSync AI</label>
+            <input
+              id="chatInput"
+              name="chatInput"
+              type="text"
+              autocomplete="off"
+              placeholder="Ask about gestures, emotion, forecasts, business insights, or next actions..."
+            />
+            <button class="primary-btn" type="submit">Send</button>
+          </form>
+        </section>
+
+        <section class="perception-panel panel" id="perception">
+          <div class="panel-heading">
+            <div>
+              <p class="panel-kicker">Perception Lab</p>
+              <h2>Live Gesture + Face + Voice Telemetry</h2>
+            </div>
+            <span class="inline-chip">AR Overlay Active</span>
+          </div>
+
+          <div class="perception-layout">
+            <div class="live-feed-card">
+              <div class="video-stage">
+                <video id="cameraVideo" autoplay muted playsinline></video>
+                <canvas id="overlayCanvas"></canvas>
+                <div class="stage-badge" id="stageBadge">
+                  <span class="stage-dot" id="stageDot" aria-hidden="true"></span>
+                  <span id="stageFeedStatus">Camera Ready</span>
+                </div>
+                <div class="stage-overlay">
+                  <span>Gesture: <strong id="stageGestureValue">Idle</strong></span>
+                  <span>Emotion: <strong id="stageEmotionValue">Neutral</strong></span>
+                </div>
+                <div class="stage-empty" id="stageEmptyState">
+                  <p>Launch camera access to activate live gesture and face inference.</p>
+                  <small>Fallback demo signals continue if webcam permissions are blocked.</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="audio-console">
+              <div class="audio-card">
+                <div class="audio-header">
+                  <div>
+                    <p class="panel-kicker">Audio Monitor</p>
+                    <h3>Mic Input + Voice State</h3>
+                  </div>
+                  <span class="inline-chip" id="audioHealth">Standby</span>
+                </div>
+
+                <div class="assistant-avatar" id="assistantAvatar" aria-hidden="true">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <strong>AI</strong>
+                </div>
+
+                <canvas id="audioWaveCanvas" width="320" height="120"></canvas>
+
+                <div class="audio-meter-card">
+                  <div class="audio-meter-head">
+                    <span>Live Mic Level</span>
+                    <strong id="audioLevelValue">0%</strong>
+                  </div>
+                  <div class="audio-meter">
+                    <span id="audioLevelBar"></span>
+                  </div>
+                  <small id="audioMeta">Microphone monitoring starts with the live experience or voice controls.</small>
+                </div>
+
+                <div class="audio-stats">
+                  <article>
+                    <span>Recognition</span>
+                    <strong id="audioRecognitionValue">Idle</strong>
+                  </article>
+                  <article>
+                    <span>Speech Output</span>
+                    <strong id="audioOutputValue">Ready</strong>
+                  </article>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sensor-grid">
+            <article class="sensor-card">
+              <span>Gesture</span>
+              <strong id="gestureValue">Idle</strong>
+              <small id="gestureMeta">Awaiting hand landmarks</small>
+            </article>
+            <article class="sensor-card">
+              <span>Emotion</span>
+              <strong id="emotionValue">Neutral</strong>
+              <small id="emotionMeta">No face signal yet</small>
+            </article>
+            <article class="sensor-card">
+              <span>Attention</span>
+              <strong id="attentionValue">--</strong>
+              <small id="attentionMeta">Focus heuristics offline</small>
+            </article>
+            <article class="sensor-card">
+              <span>Voice Command</span>
+              <strong id="voiceValue">Standby</strong>
+              <small id="voiceMeta">Recognition not started</small>
+            </article>
+          </div>
+
+          <div class="status-cluster">
+            <div class="model-stack">
+              <div class="stack-row">
+                <span>MediaPipe Hands</span>
+                <span id="handsStackState">Pending</span>
+              </div>
+              <div class="stack-row">
+                <span>FaceMesh</span>
+                <span id="faceStackState">Pending</span>
+              </div>
+              <div class="stack-row">
+                <span>Voice Agent</span>
+                <span id="voiceStackState">Pending</span>
+              </div>
+              <div class="stack-row">
+                <span>Analytics + Forecast</span>
+                <span id="forecastStackState">Pending</span>
+              </div>
+            </div>
+
+            <div class="model-registry">
+              <p class="panel-kicker">AI Model Registry</p>
+              <div class="model-grid" id="modelGrid"></div>
+            </div>
+
+            <div class="transcript-card">
+              <div>
+                <p class="panel-kicker">Latest Transcript</p>
+                <h3 id="transcriptValue">No command captured yet.</h3>
+              </div>
+              <p id="assistantSpeechValue">
+                Assistant voice output will appear here after commands or chat prompts.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section class="analytics-panel panel" id="analytics">
+          <div class="panel-heading">
+            <div>
+              <p class="panel-kicker">Analytics Engine</p>
+              <h2>CSV Intelligence Workspace</h2>
+            </div>
+            <div class="panel-actions">
+              <button class="secondary-btn small" id="runInsightBtn">Generate Insights</button>
+              <button class="secondary-btn small" id="downloadReportBtn">Download Report</button>
+            </div>
+          </div>
+
+          <label class="upload-card" for="csvFileInput" id="uploadCard">
+            <input id="csvFileInput" type="file" accept=".csv" hidden />
+            <strong>Drop a CSV or click to upload</strong>
+            <span id="uploadMeta">Expected columns: date, focus, productivity, emotion, tasks</span>
+          </label>
+
+          <div class="kpi-grid">
+            <article class="kpi-card">
+              <span>Rows</span>
+              <strong id="rowsMetric">0</strong>
+              <small>Data points loaded</small>
+            </article>
+            <article class="kpi-card">
+              <span>Avg Focus</span>
+              <strong id="focusMetric">--</strong>
+              <small>Behavior signal</small>
+            </article>
+            <article class="kpi-card">
+              <span>Avg Productivity</span>
+              <strong id="productivityMetric">--</strong>
+              <small>Output trend</small>
+            </article>
+            <article class="kpi-card">
+              <span>Forecast</span>
+              <strong id="forecastMetric">--</strong>
+              <small>Next-window estimate</small>
+            </article>
+            <article class="kpi-card">
+              <span>AI Confidence</span>
+              <strong id="modelConfidenceMetric">--</strong>
+              <small>Ensemble reliability</small>
+            </article>
+            <article class="kpi-card">
+              <span>Risk Score</span>
+              <strong id="riskMetric">--</strong>
+              <small>Anomaly and volatility risk</small>
+            </article>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <p class="panel-kicker">Trend View</p>
+                <h3>Productivity Forecast Curve</h3>
+              </div>
+              <span class="inline-chip" id="trendBadge">No data</span>
+            </div>
+            <canvas id="trendCanvas" width="640" height="280"></canvas>
+          </div>
+
+          <div class="insights-layout">
+            <section>
+              <p class="panel-kicker">Dataset Summary</p>
+              <div class="summary-list">
+                <div>
+                  <span>Primary Date Column</span>
+                  <strong id="dateColumnValue">Not detected</strong>
+                </div>
+                <div>
+                  <span>Focus Driver</span>
+                  <strong id="focusColumnValue">Not detected</strong>
+                </div>
+                <div>
+                  <span>Productivity Driver</span>
+                  <strong id="productivityColumnValue">Not detected</strong>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <p class="panel-kicker">AI Insights</p>
+              <ul class="insight-list" id="insightList"></ul>
+            </section>
+          </div>
+        </section>
+
+        <section class="decision-panel panel" id="intelligence">
+          <div class="panel-heading">
+            <div>
+              <p class="panel-kicker">Decision Intelligence</p>
+              <h2>Signal Fusion Engine</h2>
+            </div>
+            <button class="secondary-btn small" id="recomputeDecisionBtn">Recompute</button>
+          </div>
+
+          <div class="fusion-grid">
+            <div class="fusion-item">
+              <div>
+                <span>Gesture Weight</span>
+                <strong id="gestureWeightLabel">25%</strong>
+              </div>
+              <div class="progress-bar"><span id="gestureWeightBar"></span></div>
+            </div>
+            <div class="fusion-item">
+              <div>
+                <span>Emotion Weight</span>
+                <strong id="emotionWeightLabel">25%</strong>
+              </div>
+              <div class="progress-bar"><span id="emotionWeightBar"></span></div>
+            </div>
+            <div class="fusion-item">
+              <div>
+                <span>Voice Weight</span>
+                <strong id="voiceWeightLabel">20%</strong>
+              </div>
+              <div class="progress-bar"><span id="voiceWeightBar"></span></div>
+            </div>
+            <div class="fusion-item">
+              <div>
+                <span>Analytics Weight</span>
+                <strong id="analyticsWeightLabel">30%</strong>
+              </div>
+              <div class="progress-bar"><span id="analyticsWeightBar"></span></div>
+            </div>
+          </div>
+
+          <div class="decision-card">
+            <p class="panel-kicker">Current Recommended Action</p>
+            <h3 id="decisionTitle">Maintain ready state</h3>
+            <p id="decisionReason">
+              NeuroSync is waiting for perception inputs or analytics data before selecting an intelligent action.
+            </p>
+            <div class="decision-meta">
+              <span id="decisionConfidence">Confidence: --</span>
+              <span id="decisionMode">Mode: Observation</span>
+            </div>
+          </div>
+
+          <div class="action-columns">
+            <section>
+              <p class="panel-kicker">Priority Queue</p>
+              <ul class="action-list" id="actionQueue"></ul>
+            </section>
+            <section>
+              <p class="panel-kicker">Event Timeline</p>
+              <ul class="event-list" id="eventLog"></ul>
+            </section>
+          </div>
+
+          <div class="report-card">
+            <div>
+              <p class="panel-kicker">Session Record</p>
+              <h3>Downloadable AI Worklog</h3>
+              <p id="reportSummary">
+                Report includes current perception, analytics, AI confidence, risk score, insights, decision queue, and timeline.
+              </p>
+            </div>
+            <button class="primary-btn" id="decisionDownloadReportBtn" type="button">Download Report</button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      window.__neuroSyncConsole = {
+        originalWarn: console.warn.bind(console),
+        originalInfo: console.info.bind(console),
+        mutedPatterns: [
+          "gl_context_webgl.cc",
+          "gl_context.cc",
+          "Created TensorFlow Lite XNNPACK delegate",
+          "OpenGL error checking is disabled",
+          "Successfully created a WebGL context",
+          "GL version:",
+          "hands_solution_simd_wasm_bin.js",
+          "face_mesh_solution_simd_wasm_bin.js",
+        ],
+      };
+
+      ["warn", "info"].forEach((level) => {
+        const original = console[level].bind(console);
+        console[level] = (...args) => {
+          const message = args.map((item) => String(item)).join(" ");
+          const isBenignMediaPipeLog = window.__neuroSyncConsole.mutedPatterns.some((pattern) =>
+            message.includes(pattern)
+          );
+          if (isBenignMediaPipeLog) {
+            return;
+          }
+          original(...args);
+        };
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

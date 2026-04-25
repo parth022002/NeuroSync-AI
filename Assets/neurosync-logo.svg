@@ -1,0 +1,66 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="outer" x1="76" y1="74" x2="438" y2="438" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#67FFE0"/>
+      <stop offset="0.52" stop-color="#7D83FF"/>
+      <stop offset="1" stop-color="#FF5FB2"/>
+    </linearGradient>
+    <linearGradient id="inner" x1="164" y1="146" x2="350" y2="360" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EFFFFF"/>
+      <stop offset="1" stop-color="#A3D5FF"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="14" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect x="76" y="76" width="360" height="360" rx="116" stroke="url(#outer)" stroke-width="22" opacity="0.95"/>
+  <rect x="108" y="108" width="296" height="296" rx="88" stroke="url(#outer)" stroke-width="6" opacity="0.55"/>
+
+  <g filter="url(#glow)">
+    <path
+      d="M165 313C183.5 278.5 209.5 251 247 233.5C281.5 217.5 313 189.5 332 155"
+      stroke="url(#outer)"
+      stroke-width="18"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <path
+      d="M179 201C203 223 229 237 256.5 243.5C287 250.5 317.5 270.5 340 304"
+      stroke="url(#inner)"
+      stroke-width="14"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <circle cx="170" cy="316" r="22" fill="#67FFE0"/>
+    <circle cx="332" cy="154" r="20" fill="#FF5FB2"/>
+    <circle cx="343" cy="308" r="18" fill="#7D83FF"/>
+    <circle cx="178" cy="198" r="16" fill="#A3D5FF"/>
+    <circle cx="257" cy="243" r="24" fill="white"/>
+  </g>
+
+  <path
+    d="M188 356C210 377.5 234 388 259 388C296 388 326 370.5 350 336"
+    stroke="url(#outer)"
+    stroke-width="10"
+    stroke-linecap="round"
+    opacity="0.75"
+  />
+
+  <text
+    x="256"
+    y="418"
+    fill="white"
+    font-family="Orbitron, Arial, sans-serif"
+    font-size="44"
+    font-weight="700"
+    letter-spacing="8"
+    text-anchor="middle"
+  >
+    NEUROSYNC
+  </text>
+</svg>
