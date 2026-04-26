@@ -90,13 +90,13 @@ NeuroSync - AI/
       main.py              API routes and static frontend serving
       schemas.py           Pydantic request/response models
       services/            Assistant, analytics, decision, model registry
-    requirements.txt       Python dependencies
   Data/                    Sample data
   Docker/                  Dockerfile and Compose config
   Docs/                    Extra documentation
   Frontend/                HTML, CSS, JavaScript dashboard
   Scripts/                 Startup and training scripts
   Procfile                 Procfile deployment command
+  requirements.txt       Python dependencies
 ```
 
 ## Requirements

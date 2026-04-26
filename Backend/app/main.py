@@ -7,8 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.config import get_settings
-from app.schemas import (
+from .config import get_settings
+from .schemas import (
     AnalyticsRequest,
     AnalyticsResponse,
     AssistantRequest,
@@ -18,15 +18,18 @@ from app.schemas import (
     HealthResponse,
     ModelStatusResponse,
 )
-from app.services.analytics import analyze_rows
-from app.services.assistant import AssistantService
-from app.services.decision import compute_decision
-from app.services.models import get_model_status
+from .services.analytics import analyze_rows
+from .services.assistant import AssistantService
+from .services.decision import compute_decision
+from .services.models import get_model_status
 
 settings = get_settings()
 assistant_service = AssistantService(settings)
 
 BASE_DIR = Path(__file__).resolve().parents[2]
+# Add this fallback for Vercel:
+if not (BASE_DIR / "Frontend").exists():
+    BASE_DIR = Path(__file__).resolve().parents[1]
 FRONTEND_DIR = BASE_DIR / "Frontend"
 ASSETS_DIR = BASE_DIR / "Assets"
 
@@ -39,8 +42,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-if ASSETS_DIR.exists():
-    app.mount("/Assets", StaticFiles(directory=ASSETS_DIR), name="assets")
+try:
+    if ASSETS_DIR.exists() and any(ASSETS_DIR.iterdir()):
+        app.mount("/Assets", StaticFiles(directory=ASSETS_DIR), name="assets")
+except Exception:
+    pass  # Non-fatal on Vercel — assets served via CDN instead
 
 
 @app.get("/api/health", response_model=HealthResponse)

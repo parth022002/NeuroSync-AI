@@ -8,8 +8,8 @@
   ],
   "functions": {
     "api/index.py": {
-      "memory": 1024,
-      "maxDuration": 30
+      "memory": 3008,
+      "maxDuration": 60
     }
   }
 }
