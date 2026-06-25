@@ -370,7 +370,7 @@ function dismissStartOverlay() {
 function initializeChat() {
   addAssistantMessage(
     "system",
-    "NeuroSync AI v2 is ready. Ask about multimodal state, analytics trends, or the next best action."
+    "NeuroSync AI is ready. Ask about multimodal state, analytics trends, or the next best action."
   );
   addAssistantMessage(
     "assistant",
