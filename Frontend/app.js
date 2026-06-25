@@ -62,6 +62,7 @@ const state = {
     recognition: null,
     active: false,
     listening: false,
+    muted: false,
   },
   audio: {
     stream: null,
@@ -71,6 +72,12 @@ const state = {
     dataArray: null,
     active: false,
     level: 0,
+    noiseFloor: 0,
+    speechEnergy: 0,
+    pitch: 0,
+    jitter: 0,
+    toneProfile: "Calm",
+    recentPitches: [],
     animationId: null,
   },
   models: [],
@@ -90,6 +97,7 @@ document.addEventListener("DOMContentLoaded", boot);
 
 function boot() {
   cacheDom();
+  syncVoiceControlsUI();
   wireEvents();
   applySavedTheme();
   initializeChat();
@@ -142,6 +150,10 @@ function cacheDom() {
   dom.voiceMeta = document.getElementById("voiceMeta");
   dom.audioLevelValue = document.getElementById("audioLevelValue");
   dom.audioLevelBar = document.getElementById("audioLevelBar");
+  dom.audioNoiseFloor = document.getElementById("audioNoiseFloor");
+  dom.audioSpeechEnergy = document.getElementById("audioSpeechEnergy");
+  dom.audioVoicePitch = document.getElementById("audioVoicePitch");
+  dom.audioToneProfile = document.getElementById("audioToneProfile");
   dom.audioMeta = document.getElementById("audioMeta");
   dom.audioRecognitionValue = document.getElementById("audioRecognitionValue");
   dom.audioOutputValue = document.getElementById("audioOutputValue");
@@ -197,6 +209,13 @@ function cacheDom() {
   dom.recomputeDecisionBtn = document.getElementById("recomputeDecisionBtn");
   dom.previewInterfaceBtn = document.getElementById("previewInterfaceBtn");
   dom.themeButtons = Array.from(document.querySelectorAll("[data-theme]"));
+  dom.toggleVoiceAgentBtn = document.getElementById("toggleVoiceAgentBtn");
+  dom.voiceAgentDot = document.getElementById("voiceAgentDot");
+  dom.toggleMuteBtn = document.getElementById("toggleMuteBtn");
+  dom.muteDot = document.getElementById("muteDot");
+  dom.stageVoiceToneValue = document.getElementById("stageVoiceToneValue");
+  dom.stressReliefWidget = document.getElementById("stressReliefWidget");
+  dom.breathingStateText = document.getElementById("breathingStateText");
 }
 
 function wireEvents() {
@@ -302,6 +321,29 @@ function wireEvents() {
       drawIdleAudioWave();
     }
   });
+
+  if (dom.toggleVoiceAgentBtn) {
+    dom.toggleVoiceAgentBtn.addEventListener("click", async () => {
+      if (state.voice.active) {
+        stopVoiceRecognition();
+      } else {
+        await startVoiceRecognition();
+      }
+    });
+  }
+
+  if (dom.toggleMuteBtn) {
+    dom.toggleMuteBtn.addEventListener("click", () => {
+      state.voice.muted = !state.voice.muted;
+      if (state.voice.muted) {
+        window.speechSynthesis?.cancel();
+        logEvent("Voice", "Speech output muted.");
+      } else {
+        logEvent("Voice", "Speech output unmuted.");
+      }
+      syncVoiceControlsUI();
+    });
+  }
 }
 
 function applySavedTheme() {
@@ -501,6 +543,28 @@ async function startCamera() {
     resizeCanvas();
     logEvent("Camera", "Webcam stream started.");
 
+    if (!state.capabilities.visionModels) {
+      updateStageFeedStatus("Loading AI Models...", true);
+      dom.visionHealth.textContent = "Loading...";
+      try {
+        await loadScript("https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js");
+        await loadScript("https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js");
+        await loadScript("https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js");
+        await loadScript("https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js");
+        state.capabilities.visionModels = true;
+        dom.visionHealth.textContent = "Connected";
+        dom.handsStackState.textContent = "Available";
+        dom.faceStackState.textContent = "Available";
+        dom.runtimeModeLabel.textContent = "Live Models";
+        dom.systemStatusPill.textContent = "System Live";
+        state.models = buildBrowserModelStatus();
+        renderModelGrid();
+        logEvent("Vision", "MediaPipe CDN scripts loaded successfully.");
+      } catch (e) {
+        logEvent("Vision", `Failed to load MediaPipe from CDN: ${e.message}`);
+      }
+    }
+
     if (state.capabilities.visionModels) {
       await startMediapipePipeline();
     } else {
@@ -514,6 +578,20 @@ async function startCamera() {
     updateStageFeedStatus("Camera Blocked", false);
     logEvent("Camera", `Webcam unavailable: ${error.message}`);
   }
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) {
+      resolve();
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = src;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
+    document.body.appendChild(script);
+  });
 }
 
 function stopCamera() {
@@ -703,9 +781,30 @@ function startCameraFallbackLoop() {
         `Camera fallback motion score ${motionScore}%`,
         0
       );
+      
+      // Extended emotion logic for fallback camera telemetry
+      let inferredEmotion = "Focused";
+      let inferredMeta = `Camera fallback brightness ${Math.round(averageBrightness)} and motion ${motionScore}%`;
+      if (averageBrightness < 54) {
+        inferredEmotion = "Tired";
+      } else if (motionScore > 48 && averageBrightness < 80) {
+        inferredEmotion = "Stressed";
+        inferredMeta = `High restlessness (${motionScore}%) in dim light suggests stress/fatigue`;
+      } else if (motionScore > 38 && warmth > 0.24) {
+        inferredEmotion = "Excited";
+        inferredMeta = `Enthusiastic movement (${motionScore}%) with warmth suggests high excitement`;
+      } else if (motionScore < 8 && averageBrightness > 125) {
+        inferredEmotion = "Distracted";
+        inferredMeta = `Lack of movement (${motionScore}%) in high illumination suggests distraction`;
+      } else if (warmth > 0.24) {
+        inferredEmotion = "Positive";
+      } else if (motionScore > 42) {
+        inferredEmotion = "Engaged";
+      }
+      
       updateEmotion(
-        averageBrightness < 54 ? "Tired" : warmth > 0.24 ? "Positive" : motionScore > 42 ? "Engaged" : "Focused",
-        `Camera fallback brightness ${Math.round(averageBrightness)} and motion ${motionScore}%`,
+        inferredEmotion,
+        inferredMeta,
         clamp(Math.round(52 + averageBrightness / 4 + motionScore / 3), 35, 96)
       );
       drawOverlay();
@@ -752,74 +851,206 @@ function handleFaceResults(results) {
 }
 
 function inferGesture(hand) {
-  const fingerTips = [8, 12, 16, 20];
-  const fingerPips = [6, 10, 14, 18];
-  const extendedCount = fingerTips.reduce((count, tipIndex, index) => {
-    return count + Number(hand[tipIndex].y < hand[fingerPips[index]].y);
-  }, 0);
+  // 1. Hand scale reference (wrist: 0 to middle MCP knuckle: 9)
+  const handScale = Math.max(0.01, distanceBetween(hand[0], hand[9]));
 
-  const thumbTip = hand[4];
-  const indexTip = hand[8];
-  const wrist = hand[0];
+  // 2. Rotation-invariant finger extension heuristics
+  // Compares distance from wrist to tip vs wrist to PIP joint
+  const indexExtended = distanceBetween(hand[0], hand[8]) > distanceBetween(hand[0], hand[6]) * 1.15;
+  const middleExtended = distanceBetween(hand[0], hand[12]) > distanceBetween(hand[0], hand[10]) * 1.15;
+  const ringExtended = distanceBetween(hand[0], hand[16]) > distanceBetween(hand[0], hand[14]) * 1.15;
+  const pinkyExtended = distanceBetween(hand[0], hand[20]) > distanceBetween(hand[0], hand[18]) * 1.15;
+
+  // Thumb extension heuristic (distance thumb tip (4) to thumb MCP (2) and index MCP (5))
+  const thumbDistanceToMCP2 = distanceBetween(hand[4], hand[2]);
+  const thumbDistanceToIndexKnuckle = distanceBetween(hand[4], hand[5]);
+  const thumbExtended = thumbDistanceToMCP2 > handScale * 0.72 || thumbDistanceToIndexKnuckle > handScale * 0.9;
+
+  const extendedCount = Number(indexExtended) + Number(middleExtended) + Number(ringExtended) + Number(pinkyExtended);
+
   const palmCenter = {
     x: (hand[0].x + hand[5].x + hand[17].x) / 3,
     y: (hand[0].y + hand[5].y + hand[17].y) / 3,
   };
-  const pinchDistance = distanceBetween(thumbTip, indexTip);
+
+  const pinchDistance = distanceBetween(hand[4], hand[8]);
+  const normalizedPinch = pinchDistance / handScale;
+
   const motionDeltaX = lastPalmCenter ? palmCenter.x - lastPalmCenter.x : 0;
   const now = Date.now();
   lastPalmCenter = palmCenter;
 
-  if (pinchDistance < 0.055) {
-    return { label: "Pinch Select", meta: "Thumb and index finger are engaged" };
+  // A. Pinch (high precision contact between thumb and index tip)
+  if (normalizedPinch < 0.25) {
+    return {
+      label: "Pinch Select",
+      meta: `Thumb and index finger pinching (ratio: ${normalizedPinch.toFixed(2)})`
+    };
   }
 
-  if (extendedCount >= 4) {
-    if (Math.abs(motionDeltaX) > 0.1 && now - lastGestureAt > 500) {
-      lastGestureAt = now;
-      return {
-        label: motionDeltaX > 0 ? "Swipe Right" : "Swipe Left",
-        meta: "Open-palm directional gesture detected",
-      };
-    }
-
-    return { label: "Open Palm", meta: "High-confidence engagement gesture" };
+  // B. Swipe gestures (requires open palm moving rapidly)
+  if (extendedCount >= 3 && Math.abs(motionDeltaX) > 0.08 && now - lastGestureAt > 500) {
+    lastGestureAt = now;
+    return {
+      label: motionDeltaX > 0 ? "Swipe Right" : "Swipe Left",
+      meta: `Horizontal swipe gesture detected (delta: ${motionDeltaX.toFixed(2)})`
+    };
   }
 
-  if (extendedCount <= 1 && distanceBetween(wrist, indexTip) < 0.24) {
-    return { label: "Fist / Hold", meta: "Compact hand pose interpreted as hold" };
+  // C. Open Palm
+  if (extendedCount >= 3) {
+    return {
+      label: "Open Palm",
+      meta: "Open palm detected (all fingers extended)"
+    };
   }
 
-  return { label: "Pointer", meta: "Directed interaction gesture detected" };
+  // D. Pointer (only index finger extended)
+  if (indexExtended && !middleExtended && !ringExtended && !pinkyExtended) {
+    return {
+      label: "Pointer",
+      meta: "Pointing gesture active (index finger extended)"
+    };
+  }
+
+  // E. Fist / Hold (all fingers closed)
+  if (extendedCount === 0 && !thumbExtended) {
+    return {
+      label: "Fist / Hold",
+      meta: "Closed fist detected"
+    };
+  }
+
+  // F. Default or intermediate state
+  return {
+    label: "Pointer",
+    meta: `Partial hand engagement (extended count: ${extendedCount})`
+  };
 }
 
 function inferEmotion(face) {
-  const mouthOpen = distanceBetween(face[13], face[14]);
+  // 1. Establish reference scale (eyeDistance)
+  // Outer corners of eyes: left eye outer (33), right eye outer (263)
+  const eyeDistance = Math.max(0.01, distanceBetween(face[33], face[263]));
+  
+  // 2. Normalize vertical eye openness
+  // Left eye: top (159) to bottom (145). Right eye: top (386) to bottom (374)
+  const leftEyeOpenRatio = distanceBetween(face[159], face[145]) / eyeDistance;
+  const rightEyeOpenRatio = distanceBetween(face[386], face[374]) / eyeDistance;
+  const eyeOpenRatio = (leftEyeOpenRatio + rightEyeOpenRatio) / 2;
+
+  // 3. Normalize brow furrow (brow distance)
+  // Inner brows: left (55), right (285)
+  const browDistance = distanceBetween(face[55], face[285]);
+  const browFurrowRatio = browDistance / eyeDistance;
+
+  // 4. Normalize mouth width & mouth opening
+  // Corners of mouth: left (61), right (291)
   const mouthWidth = distanceBetween(face[61], face[291]);
-  const leftEye = distanceBetween(face[159], face[145]);
-  const rightEye = distanceBetween(face[386], face[374]);
-  const eyeOpen = (leftEye + rightEye) / 2;
-  const browLift = distanceBetween(face[105], face[159]) + distanceBetween(face[334], face[386]);
-  const smileSignal = mouthWidth / Math.max(mouthOpen, 0.01);
-  const attention = clamp(Math.round((eyeOpen * 3200 + browLift * 700) / 2), 40, 98);
+  const mouthWidthRatio = mouthWidth / eyeDistance;
 
-  if (mouthOpen > 0.06 && eyeOpen > 0.02) {
-    return { label: "Surprised", meta: "Wide-mouth expression with raised attention", attention };
+  // Lips: upper (13), lower (14)
+  const mouthOpen = distanceBetween(face[13], face[14]);
+  const mouthOpenRatio = mouthOpen / eyeDistance;
+
+  // 5. Normalize smile lift (vertical lift of corners relative to top lip center)
+  const cornersY = (face[61].y + face[291].y) / 2;
+  const upperLipY = face[13].y;
+  const smileLiftRatio = (upperLipY - cornersY) / eyeDistance;
+
+  // 6. Gaze tracking (pupil position relative to inner and outer eye corners)
+  let eyesLookingAway = false;
+  let gazeDetails = "gaze stable";
+  if (face[468] && face[133] && face[33] && face[473] && face[362] && face[263]) {
+    const leftPupilToInner = distanceBetween(face[468], face[133]);
+    const leftPupilToOuter = distanceBetween(face[468], face[33]);
+    const leftPupilRatio = leftPupilToInner / Math.max(leftPupilToOuter, 0.01);
+
+    const rightPupilToInner = distanceBetween(face[473], face[362]);
+    const rightPupilToOuter = distanceBetween(face[473], face[263]);
+    const rightPupilRatio = rightPupilToInner / Math.max(rightPupilToOuter, 0.01);
+
+    eyesLookingAway = (leftPupilRatio > 1.6 || leftPupilRatio < 0.6) && (rightPupilRatio > 1.6 || rightPupilRatio < 0.6);
+    gazeDetails = `gaze ratio L: ${leftPupilRatio.toFixed(2)}, R: ${rightPupilRatio.toFixed(2)}`;
   }
 
-  if (smileSignal > 3.2 && mouthWidth > 0.12) {
-    return { label: "Positive", meta: "Smile-like facial pattern detected", attention };
+  // 7. Eyebrow lift (brows to eye top center)
+  // Left brow: 105 to left eye top: 159. Right brow: 334 to right eye top: 386
+  const leftBrowLift = distanceBetween(face[105], face[159]) / eyeDistance;
+  const rightBrowLift = distanceBetween(face[334], face[386]) / eyeDistance;
+  const browLiftRatio = (leftBrowLift + rightBrowLift) / 2;
+
+  // Attention score calculation (scale-invariant attention heuristic)
+  const attention = clamp(Math.round((eyeOpenRatio * 420 + browLiftRatio * 150) * 100 / 2), 40, 98);
+
+  // A. Gaze distraction
+  if (eyesLookingAway) {
+    return {
+      label: "Distracted",
+      meta: `User gaze shifted away (${gazeDetails})`,
+      attention: clamp(attention - 25, 20, 55)
+    };
   }
 
-  if (eyeOpen < 0.012) {
-    return { label: "Tired", meta: "Low eye openness suggests fatigue", attention: clamp(attention - 18, 20, 90) };
+  // B. Frown/Stress (brow furrowing)
+  if (browFurrowRatio < 0.31 && mouthOpenRatio < 0.08) {
+    return {
+      label: "Stressed",
+      meta: `Furrowed brow detected (brow ratio: ${browFurrowRatio.toFixed(3)})`,
+      attention: clamp(attention - 5, 45, 80)
+    };
   }
 
-  if (eyeOpen < 0.019) {
-    return { label: "Focused", meta: "Concentrated expression detected", attention };
+  // C. Smile Detection (Excited / Positive)
+  if (smileLiftRatio > 0.005 || (mouthWidthRatio > 0.51 && smileLiftRatio > -0.02)) {
+    if (mouthOpenRatio > 0.05 || browLiftRatio > 0.32) {
+      return {
+        label: "Excited",
+        meta: `Active open smile detected (lift: ${smileLiftRatio.toFixed(3)}, width: ${mouthWidthRatio.toFixed(3)})`,
+        attention: clamp(attention + 8, 75, 98)
+      };
+    } else {
+      return {
+        label: "Positive",
+        meta: `Subtle smiling facial pattern (lift: ${smileLiftRatio.toFixed(3)}, width: ${mouthWidthRatio.toFixed(3)})`,
+        attention: clamp(attention + 3, 70, 95)
+      };
+    }
   }
 
-  return { label: "Neutral", meta: "Stable face state detected", attention };
+  // D. Surprise (mouth wide open, eyes wide open)
+  if (mouthOpenRatio > 0.12 && eyeOpenRatio > 0.07) {
+    return {
+      label: "Surprised",
+      meta: `Wide open eyes and mouth detected (mouth ratio: ${mouthOpenRatio.toFixed(3)})`,
+      attention
+    };
+  }
+
+  // E. Tiredness / Fatigue (sleepy or squinting eyes)
+  if (eyeOpenRatio < 0.035) {
+    return {
+      label: "Tired",
+      meta: `Low eye openness indicating fatigue (eye ratio: ${eyeOpenRatio.toFixed(3)})`,
+      attention: clamp(attention - 18, 20, 90)
+    };
+  }
+
+  // F. Focus (slightly narrowed eyes, calm expressions)
+  if (eyeOpenRatio < 0.052 && browFurrowRatio >= 0.31) {
+    return {
+      label: "Focused",
+      meta: `Sustained concentrated expression (eye ratio: ${eyeOpenRatio.toFixed(3)})`,
+      attention: clamp(attention + 5, 75, 95)
+    };
+  }
+
+  // G. Default Neutral state
+  return {
+    label: "Neutral",
+    meta: `Stable baseline expression (lift: ${smileLiftRatio.toFixed(2)}, eyes: ${eyeOpenRatio.toFixed(2)})`,
+    attention
+  };
 }
 
 function updateGesture(label, meta, handCount) {
@@ -830,12 +1061,76 @@ function updateGesture(label, meta, handCount) {
 }
 
 function updateEmotion(label, meta, attention) {
-  state.detection.emotion = label;
-  state.detection.emotionMeta = meta;
-  state.detection.attention = attention;
+  const previousEmotion = state.detection.emotion;
+  
+  let fusedLabel = label;
+  let fusedMeta = meta;
+  let fusedAttention = attention;
+
+  // Perform multimodal fusion with vocal tone profile if active and not silent
+  if (state.audio.active && state.audio.toneProfile && state.audio.toneProfile !== "Silent") {
+    const tone = state.audio.toneProfile;
+    if (label === "Neutral") {
+      if (tone === "Excited") {
+        fusedLabel = "Excited";
+        fusedMeta = `Voice excited. Face neutral. Fused: Excited. (${meta})`;
+        fusedAttention = Math.max(attention || 50, 80);
+      } else if (tone === "Stressed") {
+        fusedLabel = "Stressed";
+        fusedMeta = `Voice stressed. Face neutral. Fused: Stressed. (${meta})`;
+        fusedAttention = Math.max(attention || 50, 75);
+      } else if (tone === "Tired") {
+        fusedLabel = "Tired";
+        fusedMeta = `Voice tired. Face neutral. Fused: Tired. (${meta})`;
+        fusedAttention = Math.min(attention || 80, 55);
+      } else if (tone === "Alert" || tone === "Assertive") {
+        fusedLabel = "Focused";
+        fusedMeta = `Voice focused/assertive. Fused: Focused. (${meta})`;
+        fusedAttention = Math.max(attention || 50, 85);
+      }
+    } else if (label === "Stressed") {
+      if (tone === "Stressed") {
+        fusedMeta = `High confidence Stress: Face and Voice agree. (${meta})`;
+        fusedAttention = Math.min(attention || 75, 60);
+      } else if (tone === "Calm" || tone === "Steady") {
+        fusedLabel = "Focused";
+        fusedMeta = `Face shows tension, but voice is calm. Fused: Focused. (${meta})`;
+        fusedAttention = Math.max(attention || 50, 78);
+      }
+    } else if (label === "Tired") {
+      if (tone === "Tired") {
+        fusedMeta = `High confidence Fatigue: Face and Voice agree. (${meta})`;
+        fusedAttention = Math.min(attention || 60, 45);
+      }
+    } else if (label === "Excited") {
+      if (tone === "Excited" || tone === "Expressive") {
+        fusedMeta = `High confidence Excitement: Face and Voice agree. (${meta})`;
+        fusedAttention = Math.max(attention || 80, 90);
+      }
+    } else if (label === "Focused") {
+      if (tone === "Tired") {
+        fusedLabel = "Tired";
+        fusedMeta = `Face focused, but voice shows deep fatigue. Fused: Tired. (${meta})`;
+        fusedAttention = Math.min(attention || 85, 60);
+      } else if (tone === "Stressed") {
+        fusedLabel = "Stressed";
+        fusedMeta = `Face focused, but voice shows high stress. Fused: Stressed. (${meta})`;
+      }
+    }
+  }
+
+  state.detection.emotion = fusedLabel;
+  state.detection.emotionMeta = fusedMeta;
+  state.detection.attention = fusedAttention;
   state.detection.attentionMeta =
-    attention == null ? "Focus heuristics offline" : `Estimated attention score from eye and brow dynamics`;
+    fusedAttention == null ? "Focus heuristics offline" : `Estimated attention score from fused eye, brow, and audio dynamics`;
+  
   renderPerception();
+
+  // If fused emotion changes, recompute decision instantly to update theme/widget
+  if (previousEmotion !== fusedLabel) {
+    recomputeDecision("Multimodal emotion update");
+  }
 }
 
 function renderPerception() {
@@ -854,6 +1149,9 @@ function renderPerception() {
   dom.heroEmotion.textContent = state.detection.emotion;
   dom.stageGestureValue.textContent = state.detection.gesture;
   dom.stageEmotionValue.textContent = state.detection.emotion;
+  if (dom.stageVoiceToneValue) {
+    dom.stageVoiceToneValue.textContent = state.audio.toneProfile || "Calm";
+  }
   dom.audioRecognitionValue.textContent = state.detection.voice;
   document.documentElement.dataset.gesture = state.detection.gesture.toLowerCase().replace(/[^a-z0-9]+/g, "-");
   document.documentElement.dataset.emotion = state.detection.emotion.toLowerCase().replace(/[^a-z0-9]+/g, "-");
@@ -863,6 +1161,7 @@ function resizeCanvas() {
   const bounds = dom.video.getBoundingClientRect();
   dom.canvas.width = Math.max(1, Math.floor(bounds.width));
   dom.canvas.height = Math.max(1, Math.floor(bounds.height));
+  dom.canvas.style.transform = "none"; // Bypasses browser cache of old CSS scaleX(-1) transform on canvas
 }
 
 function resizeAudioCanvas() {
@@ -872,7 +1171,11 @@ function resizeAudioCanvas() {
 }
 
 function drawOverlay() {
-  if (!dom.canvas.width || !dom.canvas.height) {
+  const bounds = dom.video.getBoundingClientRect();
+  const elementWidth = Math.max(1, Math.floor(bounds.width));
+  const elementHeight = Math.max(1, Math.floor(bounds.height));
+
+  if (dom.canvas.width !== elementWidth || dom.canvas.height !== elementHeight) {
     resizeCanvas();
   }
 
@@ -891,9 +1194,29 @@ function drawOverlay() {
 }
 
 function projectLandmark(point) {
+  const videoWidth = dom.video.videoWidth;
+  const videoHeight = dom.video.videoHeight;
+  const elementWidth = dom.canvas.width;
+  const elementHeight = dom.canvas.height;
+
+  if (!videoWidth || !videoHeight) {
+    return {
+      x: (1 - point.x) * elementWidth,
+      y: point.y * elementHeight,
+    };
+  }
+
+  const scale = Math.max(elementWidth / videoWidth, elementHeight / videoHeight);
+  const scaledWidth = videoWidth * scale;
+  const scaledHeight = videoHeight * scale;
+  const offsetX = (scaledWidth - elementWidth) / 2;
+  const offsetY = (scaledHeight - elementHeight) / 2;
+
+  // Render mirrored on screen relative to elementWidth:
+  // Math: elementWidth - (point.x * scaledWidth - offsetX) => (1 - point.x) * scaledWidth - offsetX
   return {
-    x: (1 - point.x) * dom.canvas.width,
-    y: point.y * dom.canvas.height,
+    x: (1 - point.x) * scaledWidth - offsetX,
+    y: point.y * scaledHeight - offsetY,
   };
 }
 
@@ -967,6 +1290,7 @@ async function startVoiceRecognition() {
     recognition.lang = "en-US";
     recognition.onstart = () => {
       state.voice.listening = true;
+      state.voice.active = true;
       state.detection.voice = "Listening";
       state.detection.voiceMeta = "Say commands like open analytics or summarize state";
       dom.voiceHealth.textContent = "Listening";
@@ -974,6 +1298,7 @@ async function startVoiceRecognition() {
       updateVoiceIndicator("listening", "Listening for commands");
       renderPerception();
       logEvent("Voice", "Voice recognition started.");
+      syncVoiceControlsUI();
     };
     recognition.onresult = async (event) => {
       const transcript = Array.from(event.results)
@@ -1026,6 +1351,7 @@ async function startVoiceRecognition() {
       dom.audioRecognitionValue.textContent = "Standby";
       updateVoiceIndicator(state.audio.active ? "monitoring" : "standby", state.audio.active ? "Mic monitoring active" : "Voice Standby");
       renderPerception();
+      syncVoiceControlsUI();
     };
     state.voice.recognition = recognition;
   }
@@ -1034,6 +1360,37 @@ async function startVoiceRecognition() {
     state.voice.active = true;
     updateVoiceIndicator("listening", "Starting voice agent");
     state.voice.recognition.start();
+    syncVoiceControlsUI();
+  }
+}
+
+function stopVoiceRecognition() {
+  state.voice.active = false;
+  if (state.voice.recognition) {
+    try {
+      state.voice.recognition.stop();
+    } catch (e) {
+      console.warn("Failed to stop recognition:", e);
+    }
+  }
+  state.detection.voice = "Standby";
+  state.detection.voiceMeta = "Voice Agent deactivated";
+  if (dom.voiceHealth) dom.voiceHealth.textContent = "Standby";
+  if (dom.audioRecognitionValue) dom.audioRecognitionValue.textContent = "Standby";
+  updateVoiceIndicator(state.audio.active ? "monitoring" : "standby", state.audio.active ? "Mic monitoring active" : "Voice Standby");
+  renderPerception();
+  logEvent("Voice", "Voice recognition stopped.");
+  syncVoiceControlsUI();
+}
+
+function syncVoiceControlsUI() {
+  if (dom.toggleVoiceAgentBtn && dom.voiceAgentDot) {
+    dom.toggleVoiceAgentBtn.innerHTML = `<span class="status-dot" id="voiceAgentDot" style="width: 8px; height: 8px; border-radius: 50%; background: ${state.voice.active ? "#53f7af" : "#ff7a8a"}; display: inline-block;"></span> Voice Agent: ${state.voice.active ? "ON" : "OFF"}`;
+    dom.voiceAgentDot = document.getElementById("voiceAgentDot");
+  }
+  if (dom.toggleMuteBtn && dom.muteDot) {
+    dom.toggleMuteBtn.innerHTML = `<span class="status-dot" id="muteDot" style="width: 8px; height: 8px; border-radius: 50%; background: ${state.voice.muted ? "#ff7a8a" : "#53f7af"}; display: inline-block;"></span> Muted: ${state.voice.muted ? "YES" : "NO"}`;
+    dom.muteDot = document.getElementById("muteDot");
   }
 }
 
@@ -1041,17 +1398,34 @@ function handleVoiceCommand(transcript) {
   const text = transcript.toLowerCase();
   let response = "Command captured. NeuroSync is updating the current workspace.";
 
-  if (text.includes("analytics")) {
-    document.getElementById("analytics").scrollIntoView({ behavior: "smooth", block: "start" });
+  if (text.includes("unmute")) {
+    state.voice.muted = false;
+    syncVoiceControlsUI();
+    response = "Voice output unmuted. Text-to-speech output is active.";
+  } else if (text.includes("mute")) {
+    state.voice.muted = true;
+    window.speechSynthesis?.cancel();
+    syncVoiceControlsUI();
+    response = "Voice output muted. Text updates will continue in the assistant panel.";
+  } else if (text.includes("stop listening") || text.includes("deactivate voice")) {
+    response = "Deactivating voice commands agent. Standing by.";
+    state.detection.lastSpeech = response;
+    renderPerception();
+    logEvent("Voice", "Voice agent deactivated via speech command.");
+    speak(response);
+    setTimeout(() => {
+      stopVoiceRecognition();
+    }, 2000);
+    return response;
+  } else if (text.includes("analytics")) {
+    const el = document.getElementById("analytics");
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
     response = "Analytics workspace is in focus. I recommend reviewing the forecast curve and generated insights.";
   } else if (text.includes("camera") || text.includes("vision")) {
     startCamera();
     response = "Vision pipeline is being activated so we can monitor gesture and emotion signals live.";
   } else if (text.includes("summary")) {
     response = buildDecisionNarrative();
-  } else if (text.includes("mute")) {
-    window.speechSynthesis?.cancel();
-    response = "Voice output muted. Text updates will continue in the assistant panel.";
   } else if (text.includes("focus mode")) {
     state.decision.mode = "Focus Preservation";
     response = "Focus mode enabled. I will prioritize low-friction actions and sustained productivity cues.";
@@ -1065,6 +1439,10 @@ function handleVoiceCommand(transcript) {
 
 function speak(text) {
   if (!appConfig.speechEnabled || !text) {
+    return;
+  }
+
+  if (state.voice.muted) {
     return;
   }
 
@@ -1170,8 +1548,168 @@ function renderAudioFrame() {
   state.audio.level = clamp(rms * 2.8, 0, 1);
   dom.audioLevelValue.textContent = `${Math.round(state.audio.level * 100)}%`;
   dom.audioLevelBar.style.width = `${Math.round(state.audio.level * 100)}%`;
+
+  // Estimate Noise Floor slowly adapting to minimum ambient volume
+  let noiseFloor = state.audio.noiseFloor || 0.005;
+  if (rms < noiseFloor) {
+    noiseFloor = noiseFloor * 0.85 + rms * 0.15;
+  } else {
+    noiseFloor = noiseFloor * 0.997 + rms * 0.003;
+  }
+  state.audio.noiseFloor = noiseFloor;
+
+  // Speech energy = dynamic difference above noise floor
+  const voiceDelta = Math.max(0, rms - noiseFloor);
+  state.audio.speechEnergy = clamp(voiceDelta * 4.5, 0, 1);
+
+  // Pitch Autocorrelation detection
+  const sampleRate = state.audio.context.sampleRate || 44100;
+  const pitchHz = autoCorrelate(samples, sampleRate);
+  state.audio.pitch = pitchHz;
+
+  // Track recent pitches during active speech to calculate jitter
+  if (state.audio.speechEnergy > 0.08 && pitchHz > 50 && pitchHz < 500) {
+    state.audio.recentPitches.push(pitchHz);
+    if (state.audio.recentPitches.length > 15) {
+      state.audio.recentPitches.shift();
+    }
+  } else {
+    // Decaying pitch over silence
+    state.audio.pitch = 0;
+    if (state.audio.recentPitches.length > 0) {
+      state.audio.recentPitches.shift();
+    }
+  }
+
+  // Calculate Jitter (coefficient of variation of pitches)
+  let jitterValue = 0;
+  if (state.audio.recentPitches.length >= 4) {
+    const avgPitch = safeAverage(state.audio.recentPitches);
+    const variance = safeAverage(state.audio.recentPitches.map(p => Math.pow(p - avgPitch, 2)));
+    const stdDev = Math.sqrt(variance);
+    jitterValue = avgPitch > 0 ? stdDev / avgPitch : 0;
+  }
+  state.audio.jitter = jitterValue;
+
+  // Vocal Tone Heuristic Profiling (matches python heuristics)
+  let toneProfile = "Calm";
+  if (state.audio.speechEnergy < 0.05) {
+    toneProfile = "Silent";
+  } else if (state.audio.pitch > 200) {
+    if (state.audio.jitter > 0.08) toneProfile = "Excited";
+    else if (state.audio.speechEnergy > 0.35) toneProfile = "Stressed";
+    else toneProfile = "Alert";
+  } else if (state.audio.pitch > 80) {
+    if (state.audio.jitter > 0.08) toneProfile = "Expressive";
+    else if (state.audio.speechEnergy > 0.35) toneProfile = "Assertive";
+    else toneProfile = "Calm";
+  } else {
+    if (state.audio.speechEnergy < 0.15) toneProfile = "Tired";
+    else toneProfile = "Steady";
+  }
+  state.audio.toneProfile = toneProfile;
+
+  // If camera is not active, let voice tone predict/influence the mood
+  if (!state.camera.active) {
+    let voiceEmotion = "Neutral";
+    let voiceMeta = "Voice tone is normal";
+    let voiceAttention = 70;
+    if (toneProfile === "Excited") {
+      voiceEmotion = "Excited";
+      voiceMeta = "Excited voice pattern detected (pitch & jitter high)";
+      voiceAttention = 85;
+    } else if (toneProfile === "Stressed") {
+      voiceEmotion = "Stressed";
+      voiceMeta = "Stressed or tense speech pattern detected (high energy/pitch)";
+      voiceAttention = 75;
+    } else if (toneProfile === "Tired") {
+      voiceEmotion = "Tired";
+      voiceMeta = "Tired or low energy voice pattern detected";
+      voiceAttention = 50;
+    } else if (toneProfile === "Alert" || toneProfile === "Assertive") {
+      voiceEmotion = "Focused";
+      voiceMeta = "Focused, steady, or assertive speech pattern";
+      voiceAttention = 90;
+    } else if (toneProfile === "Calm" || toneProfile === "Steady" || toneProfile === "Expressive") {
+      voiceEmotion = "Positive";
+      voiceMeta = "Calm or expressive speech pattern";
+      voiceAttention = 80;
+    }
+    
+    // Update emotion with the vocal prediction if not silent
+    if (toneProfile !== "Silent") {
+      updateEmotion(voiceEmotion, voiceMeta, voiceAttention);
+    } else if (!state.camera.demoMode) {
+      updateEmotion("Neutral", "No active voice signals (ambient silence)", 65);
+    }
+  }
+
+  const floorPercent = clamp(Math.round(state.audio.noiseFloor * 280), 0, 100);
+  const speechPercent = clamp(Math.round(state.audio.speechEnergy * 100), 0, 100);
+  
+  dom.audioNoiseFloor.textContent = `${floorPercent}%`;
+  dom.audioSpeechEnergy.textContent = `${speechPercent}%`;
+  dom.audioVoicePitch.textContent = state.audio.pitch > 0 ? `${Math.round(state.audio.pitch)} Hz` : "0 Hz";
+  dom.audioToneProfile.textContent = toneProfile;
+
   drawAudioWave(samples, state.audio.level);
   state.audio.animationId = window.requestAnimationFrame(renderAudioFrame);
+}
+
+function autoCorrelate(buffer, sampleRate) {
+  const minPeriod = Math.floor(sampleRate / 500); // 500Hz limit
+  const maxPeriod = Math.floor(sampleRate / 50);  // 50Hz limit
+  
+  const data = new Float32Array(buffer.length);
+  let totalSum = 0;
+  for (let i = 0; i < buffer.length; i++) {
+    const val = (buffer[i] - 128) / 128;
+    data[i] = val;
+    totalSum += val * val;
+  }
+  const rms = Math.sqrt(totalSum / buffer.length);
+  if (rms < 0.012) {
+    return 0; // Amplitude too low for clean autocorrelation
+  }
+  
+  let correlations = new Float32Array(maxPeriod + 1);
+  for (let offset = minPeriod; offset <= maxPeriod; offset++) {
+    let sum = 0;
+    for (let i = 0; i < buffer.length - offset; i++) {
+      sum += data[i] * data[i + offset];
+    }
+    correlations[offset] = sum;
+  }
+  
+  let peakOffset = -1;
+  let maxVal = -1;
+  for (let offset = minPeriod; offset <= maxPeriod; offset++) {
+    if (correlations[offset] > maxVal && 
+        correlations[offset] > correlations[offset - 1] && 
+        correlations[offset] > correlations[offset + 1]) {
+      maxVal = correlations[offset];
+      peakOffset = offset;
+    }
+  }
+  
+  if (peakOffset !== -1 && maxVal > 0.08) {
+    return sampleRate / peakOffset;
+  }
+  return 0;
+}
+
+function drawIdleAudioWave() {
+  const pseudoSamples = new Uint8Array(256);
+  for (let index = 0; index < pseudoSamples.length; index += 1) {
+    pseudoSamples[index] = 128 + Math.sin(index / 12) * 6;
+  }
+  dom.audioLevelValue.textContent = "0%";
+  dom.audioLevelBar.style.width = "0%";
+  if (dom.audioNoiseFloor) dom.audioNoiseFloor.textContent = "0%";
+  if (dom.audioSpeechEnergy) dom.audioSpeechEnergy.textContent = "0%";
+  if (dom.audioVoicePitch) dom.audioVoicePitch.textContent = "0 Hz";
+  if (dom.audioToneProfile) dom.audioToneProfile.textContent = "Calm";
+  drawAudioWave(pseudoSamples, 0.08);
 }
 
 function drawAudioWave(samples, level) {
@@ -1240,7 +1778,33 @@ function drawIdleAudioWave() {
 
 async function handleAssistantPrompt(message) {
   addAssistantMessage("user", message);
-  const reply = await getAssistantReply(message);
+  let reply = await getAssistantReply(message);
+
+  // Intercept and parse action tokens from local assistant
+  if (reply.includes("[ACTION:")) {
+    const match = reply.match(/\[ACTION:([A-Z]+):([a-zA-Z0-9_-]+)\]/);
+    if (match) {
+      const category = match[1];
+      const argument = match[2];
+      
+      // Strip action tag from displayed and spoken reply
+      reply = reply.replace(match[0], "").trim();
+
+      // Dispatch execution commands
+      if (category === "THEME") {
+        setTheme(argument.toLowerCase());
+      } else if (category === "CAMERA") {
+        if (argument === "START") {
+          startCamera();
+        } else if (argument === "STOP") {
+          stopCamera();
+        }
+      } else if (category === "ANALYTICS" && argument === "LOAD") {
+        loadSampleDataset();
+      }
+    }
+  }
+
   addAssistantMessage("assistant", reply);
   speak(reply);
   logEvent("Assistant", `Prompt handled: ${message}`);
@@ -1332,6 +1896,9 @@ function downloadSessionReport() {
       attention: state.detection.attention,
       voice: state.detection.voice,
       transcript: state.detection.transcript,
+      tonePitch: state.audio.pitch,
+      toneJitter: state.audio.jitter,
+      toneProfile: state.audio.toneProfile,
     },
     analytics: {
       fileName: state.analytics.fileName || "sample_productivity.csv",
@@ -1354,6 +1921,9 @@ function downloadSessionReport() {
     `Attention: ${state.detection.attention == null ? "Not estimated" : `${state.detection.attention}%`}`,
     `Voice: ${state.detection.voice}`,
     `Transcript: ${state.detection.transcript}`,
+    `Voice Pitch: ${state.audio.pitch > 0 ? `${Math.round(state.audio.pitch)} Hz` : "0 Hz"}`,
+    `Voice Jitter: ${state.audio.jitter.toFixed(4)}`,
+    `Voice Tone Profile: ${state.audio.toneProfile}`,
     "",
     "Analytics",
     `Dataset: ${state.analytics.fileName || "sample_productivity.csv"}`,
@@ -1516,6 +2086,10 @@ function computeAnalytics(rows) {
   const modelConfidence = clamp(92 - volatility * 2.4 - anomalies * 5 + Math.min(rows.length, 30) * 0.45, 42, 96);
   const signalQuality = modelConfidence >= 78 ? "High" : modelConfidence >= 60 ? "Medium" : "Low";
 
+  const productivityLag1 = productivitySeries.length >= 2 ? productivitySeries[productivitySeries.length - 2] : (productivitySeries[0] || 0);
+  const focusRollingMean3 = safeAverage(focusSeries.slice(-3));
+  const productivityRollingMean3 = safeAverage(productivitySeries.slice(-3));
+
   return {
     rowCount: rows.length,
     columns,
@@ -1548,6 +2122,9 @@ function computeAnalytics(rows) {
     riskScore,
     modelConfidence,
     signalQuality,
+    productivityLag1,
+    focusRollingMean3,
+    productivityRollingMean3,
     analysisModels: [
       "Weighted ensemble forecast",
       "Exponential smoothing",
@@ -1703,6 +2280,32 @@ function renderInsights(insights) {
   });
 }
 
+let breathingInterval = null;
+function startBreathingGuide() {
+  if (breathingInterval) return;
+  let phase = 0;
+  breathingInterval = setInterval(() => {
+    if (!dom.breathingStateText) return;
+    if (state.decision.mode === "Recovery" || state.decision.mode === "Mandatory Recovery") {
+      // 3 phase: Inhale, Hold, Exhale
+      const phases = ["Inhale deeply...", "Hold...", "Exhale slowly..."];
+      dom.breathingStateText.textContent = phases[phase % phases.length];
+    } else {
+      // 4 phase box breathing: Inhale, Hold, Exhale, Hold
+      const phases = ["Inhale (4s)...", "Hold (4s)...", "Exhale (4s)...", "Hold (4s)..."];
+      dom.breathingStateText.textContent = phases[phase % phases.length];
+    }
+    phase++;
+  }, 2000);
+}
+
+function stopBreathingGuide() {
+  if (breathingInterval) {
+    clearInterval(breathingInterval);
+    breathingInterval = null;
+  }
+}
+
 function recomputeDecision(reason) {
   const metrics = state.analytics.metrics;
   const gesture = state.detection.gesture;
@@ -1715,6 +2318,21 @@ function recomputeDecision(reason) {
   let confidence = 0.32;
   let mode = "Observation";
   const queue = [];
+
+  // Theme auto-switching based on emotion state
+  if (emotion === "Stressed") {
+    setTheme("calm");
+  } else if (emotion === "Distracted") {
+    setTheme("focus");
+  } else if (emotion === "Excited") {
+    setTheme("aurora");
+  } else if (emotion === "Tired") {
+    setTheme("calm");
+  } else if (emotion === "Focused") {
+    setTheme("focus");
+  } else if (emotion === "Positive") {
+    setTheme("neon");
+  }
 
   if (gesture === "Pinch Select") {
     title = "Lock onto active workspace selection";
@@ -1750,6 +2368,27 @@ function recomputeDecision(reason) {
     confidence += 0.18;
     mode = "Recovery";
     queue.unshift("Offer a quick break and summarize only the highest-priority action.");
+  } else if (emotion === "Stressed") {
+    title = "Alleviate workload pressure";
+    explanation =
+      "Signs of stress or muscle tension detected. Switch to Calm Lavender mode, suggest breathing exercises, and prioritize low-pressure tasks.";
+    confidence += 0.18;
+    mode = "Stamina Buffer";
+    queue.unshift("Suggest a 5-minute tactical breathing exercise.");
+  } else if (emotion === "Distracted") {
+    title = "Redirect focus to active task";
+    explanation =
+      "Gaze deviation suggests the user is looking away. The interface will switch to Focus Mode, suppress notification overlays, and highlight the highest priority task.";
+    confidence += 0.15;
+    mode = "Focus Rescue";
+    queue.unshift("Activate deep-work notifications suppression.");
+  } else if (emotion === "Excited") {
+    title = "Harness peak energy window";
+    explanation =
+      "High expressions of positive energy and high attention detected. Suggest tackling creative or complex deliverables while stamina is at its peak.";
+    confidence += 0.2;
+    mode = "Peak Stamina";
+    queue.unshift("Surface the highest-priority creative backlog item.");
   } else if (emotion === "Focused" && attention && attention > 70) {
     title = "Preserve deep-work flow";
     explanation =
@@ -1802,6 +2441,17 @@ function recomputeDecision(reason) {
     queue.unshift("Honor the most recent voice command before lower-priority suggestions.");
   }
 
+  // Precision signal quality confidence adjustments (dampeners)
+  if (state.audio.active && state.audio.noiseFloor > 0.16) {
+    confidence -= 0.15; // High background noise dampens command recognition confidence
+  }
+  if (state.camera.active && !state.camera.mediapipeReady) {
+    confidence -= 0.1;  // Running in lower-fidelity camera motion fallback mode
+  }
+  if (state.camera.active && gesture === "Idle" && emotion === "Neutral") {
+    confidence -= 0.05; // No active signals detected from camera telemetry
+  }
+
   if (!queue.length) {
     queue.push("Await stronger multimodal intent before changing the interface.");
     queue.push("Continue updating gesture, emotion, and forecast confidence.");
@@ -1810,7 +2460,7 @@ function recomputeDecision(reason) {
   state.decision = {
     title,
     reason: explanation,
-    confidence: clamp(confidence, 0, 0.96),
+    confidence: clamp(confidence, 0.05, 0.96),
     mode,
     queue: queue.slice(0, 4),
   };
@@ -1824,6 +2474,17 @@ function renderDecision(triggerReason) {
   dom.decisionConfidence.textContent = `Confidence: ${Math.round(state.decision.confidence * 100)}%`;
   dom.decisionMode.textContent = `Mode: ${state.decision.mode}`;
   dom.heroConfidence.textContent = `${Math.round(state.decision.confidence * 100)}%`;
+
+  if (dom.stressReliefWidget) {
+    const showWidget = ["Critical Stress Intervention", "Stamina Buffer", "Mandatory Recovery", "Recovery"].includes(state.decision.mode);
+    if (showWidget) {
+      dom.stressReliefWidget.style.display = "block";
+      startBreathingGuide();
+    } else {
+      dom.stressReliefWidget.style.display = "none";
+      stopBreathingGuide();
+    }
+  }
 
   const weights = calculateFusionWeights();
   setWeight(dom.gestureWeightBar, dom.gestureWeightLabel, weights.gesture);
@@ -1871,6 +2532,14 @@ function queueBackendDecisionSync() {
 
 async function syncBackendDecision() {
   try {
+    const metricsPayload = state.analytics.metrics ? { ...state.analytics.metrics } : {};
+    metricsPayload.audioNoiseFloor = state.audio.active ? state.audio.noiseFloor : 0;
+    metricsPayload.cameraFallback = state.camera.active && !state.camera.mediapipeReady;
+    metricsPayload.hasActivePerception = state.camera.active && (state.detection.gesture !== "Idle" || state.detection.emotion !== "Neutral");
+    metricsPayload.tonePitch = state.audio.active ? state.audio.pitch : 0;
+    metricsPayload.toneJitter = state.audio.active ? state.audio.jitter : 0;
+    metricsPayload.audioSpeechEnergy = state.audio.active ? (state.audio.speechEnergy * 100) : 0;
+
     const response = await fetch(appConfig.decisionEndpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1879,7 +2548,7 @@ async function syncBackendDecision() {
         emotion: state.detection.emotion,
         attention: state.detection.attention,
         voice_state: state.detection.voice,
-        metrics: state.analytics.metrics,
+        metrics: metricsPayload,
       }),
     });
     if (!response.ok) {
@@ -1927,8 +2596,11 @@ function buildDecisionNarrative() {
 function startDemoLoop() {
   const demoStates = [
     { gesture: "Open Palm", emotion: "Focused", attention: 82 },
+    { gesture: "Swipe Right", emotion: "Excited", attention: 88 },
     { gesture: "Pointer", emotion: "Neutral", attention: 71 },
+    { gesture: "Idle", emotion: "Stressed", attention: 55 },
     { gesture: "Pinch Select", emotion: "Positive", attention: 77 },
+    { gesture: "Idle", emotion: "Distracted", attention: 35 },
     { gesture: "Idle", emotion: "Neutral", attention: 65 },
   ];
 
@@ -1942,11 +2614,7 @@ function startDemoLoop() {
     index += 1;
     state.detection.gesture = next.gesture;
     state.detection.gestureMeta = "Demo perception signal";
-    state.detection.emotion = next.emotion;
-    state.detection.emotionMeta = "Demo emotion heuristic";
-    state.detection.attention = next.attention;
-    state.detection.attentionMeta = "Demo attention estimate";
-    renderPerception();
+    updateEmotion(next.emotion, "Demo emotion heuristic", next.attention);
     recomputeDecision("Demo signal refresh");
   }, 5500);
 }

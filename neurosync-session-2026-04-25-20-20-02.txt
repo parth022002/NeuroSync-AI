@@ -1,0 +1,321 @@
+NeuroSync AI Session Report
+Generated: 4/26/2026, 1:50:02 AM
+
+Perception
+Gesture: Pinch Select
+Gesture detail: Thumb and index finger are engaged - 1 hand
+Emotion: Neutral
+Emotion detail: Stable face state detected
+Attention: 56%
+Voice: Listening
+Transcript: No command captured yet.
+
+Analytics
+Dataset: sample_productivity.csv
+Rows: 14
+Average focus: 78%
+Average productivity: 74%
+Forecast: 78%
+AI confidence: 83%
+Risk score: 22%
+Models: Weighted ensemble forecast, Exponential smoothing, Momentum regression, Seasonal naive baseline, Z-score anomaly detection, Correlation risk scoring
+
+Insights
+- Productivity is stable with a projected next-window score of 78%.
+- Ensemble confidence is 83% with high signal quality and risk at 22%.
+- Focus averages 78% and shows a strong relationship with productivity.
+- Operational rhythm appears steady, with 1 anomaly detected across the series.
+- Average mood signal is 73% while throughput averages 5.4 completed tasks per interval.
+
+Decision
+Title: Lock onto active workspace selection
+Mode: Intent Capture
+Confidence: 59%
+Reason: Pinch input is a high-intent gesture. Keep the current card or UI zone selected and surface contextual shortcuts.
+Queue:
+- Highlight the currently targeted widget.
+- Route the assistant into concise strategic support instead of exploratory suggestions.
+
+Event Timeline
+- [01:50 AM] Decision: Lock onto active workspace selection - Emotion update
+- [01:50 AM] Decision: Lock onto active workspace selection - Gesture update
+- [01:50 AM] Decision: Lock onto active workspace selection - Emotion update
+- [01:50 AM] Decision: Lock onto active workspace selection - Gesture update
+- [01:50 AM] Decision: Lock onto active workspace selection - Emotion update
+- [01:50 AM] Decision: Lock onto active workspace selection - Gesture update
+- [01:50 AM] Decision: Lock onto active workspace selection - Emotion update
+- [01:50 AM] Decision: Lock onto active workspace selection - Gesture update
+
+Machine Readable Snapshot
+{
+  "generatedAt": "2026-04-25T20:20:02.689Z",
+  "perception": {
+    "gesture": "Pinch Select",
+    "gestureMeta": "Thumb and index finger are engaged - 1 hand",
+    "emotion": "Neutral",
+    "emotionMeta": "Stable face state detected",
+    "attention": 56,
+    "voice": "Listening",
+    "transcript": "No command captured yet."
+  },
+  "analytics": {
+    "fileName": "sample_productivity.csv",
+    "metrics": {
+      "rowCount": 14,
+      "columns": [
+        "date",
+        "focus_score",
+        "productivity_score",
+        "emotion_score",
+        "tasks_completed"
+      ],
+      "dateColumn": "date",
+      "focusColumn": "focus_score",
+      "productivityColumn": "productivity_score",
+      "emotionColumn": "emotion_score",
+      "taskColumn": "tasks_completed",
+      "dateLabels": [
+        "Apr 1",
+        "Apr 2",
+        "Apr 3",
+        "Apr 4",
+        "Apr 5",
+        "Apr 6",
+        "Apr 7",
+        "Apr 8",
+        "Apr 9",
+        "Apr 10",
+        "Apr 11",
+        "Apr 12",
+        "Apr 13",
+        "Apr 14"
+      ],
+      "focusSeries": [
+        78,
+        83,
+        86,
+        87,
+        84,
+        80,
+        75,
+        71,
+        68,
+        68,
+        70,
+        75,
+        81,
+        88
+      ],
+      "productivitySeries": [
+        79,
+        78,
+        77,
+        75,
+        73,
+        71,
+        69,
+        68,
+        68,
+        69,
+        71,
+        74,
+        77,
+        81
+      ],
+      "emotionSeries": [
+        72,
+        74,
+        75,
+        76,
+        77,
+        77,
+        77,
+        76,
+        75,
+        73,
+        72,
+        70,
+        68,
+        66
+      ],
+      "taskSeries": [
+        4,
+        5,
+        6,
+        7,
+        4,
+        5,
+        6,
+        7,
+        4,
+        5,
+        6,
+        7,
+        4,
+        5
+      ],
+      "averageFocus": 78.14285714285714,
+      "averageProductivity": 73.57142857142857,
+      "averageEmotion": 73.42857142857143,
+      "averageTasks": 5.357142857142857,
+      "predictedNext": 78.05425465641392,
+      "linearForecast": 73.37912087912088,
+      "emaForecast": 78.31676708900021,
+      "momentumForecast": 84.3,
+      "seasonalForecast": 76.06,
+      "emaSeries": [
+        79,
+        78.58000000000001,
+        77.91640000000001,
+        76.69151200000002,
+        75.14107696000002,
+        73.40182463680001,
+        71.55305828934401,
+        70.06077380781953,
+        69.19524880853533,
+        69.1132443089505,
+        69.90568169919129,
+        71.62529538553096,
+        73.88267132360795,
+        76.87194936769262
+      ],
+      "slope": -0.15384615384615388,
+      "volatility": 4.203982562732046,
+      "anomalies": 1,
+      "anomalyIndexes": [
+        13
+      ],
+      "correlation": 0.7778029103883978,
+      "focusProductivityFit": 0.8660791079099835,
+      "riskScore": 21.87080748293088,
+      "modelConfidence": 83.21044184944309,
+      "signalQuality": "High",
+      "analysisModels": [
+        "Weighted ensemble forecast",
+        "Exponential smoothing",
+        "Momentum regression",
+        "Seasonal naive baseline",
+        "Z-score anomaly detection",
+        "Correlation risk scoring"
+      ],
+      "trendLabel": "Stable"
+    },
+    "insights": [
+      "Productivity is stable with a projected next-window score of 78%.",
+      "Ensemble confidence is 83% with high signal quality and risk at 22%.",
+      "Focus averages 78% and shows a strong relationship with productivity.",
+      "Operational rhythm appears steady, with 1 anomaly detected across the series.",
+      "Average mood signal is 73% while throughput averages 5.4 completed tasks per interval."
+    ]
+  },
+  "decision": {
+    "title": "Lock onto active workspace selection",
+    "reason": "Pinch input is a high-intent gesture. Keep the current card or UI zone selected and surface contextual shortcuts.",
+    "confidence": 0.5900000000000001,
+    "mode": "Intent Capture",
+    "queue": [
+      "Highlight the currently targeted widget.",
+      "Route the assistant into concise strategic support instead of exploratory suggestions."
+    ]
+  },
+  "models": [
+    {
+      "name": "MediaPipe Hands",
+      "type": "browser-vision",
+      "status": "ready",
+      "detail": "21-point hand landmarks for gesture control."
+    },
+    {
+      "name": "MediaPipe FaceMesh",
+      "type": "browser-vision",
+      "status": "ready",
+      "detail": "Face landmarks for expression and attention cues."
+    },
+    {
+      "name": "Camera Motion Heuristic",
+      "type": "edge-fallback",
+      "status": "ready",
+      "detail": "Low-latency fallback when landmark models are unavailable."
+    },
+    {
+      "name": "Productivity Random Forest",
+      "type": "analytics",
+      "status": "trained",
+      "detail": "Tree ensemble forecast model for KPI data."
+    },
+    {
+      "name": "Productivity Linear Trend",
+      "type": "analytics",
+      "status": "trained",
+      "detail": "Fast trend baseline for next-window estimates."
+    },
+    {
+      "name": "Weighted Forecast Ensemble",
+      "type": "analytics",
+      "status": "ready",
+      "detail": "Blends linear trend, EMA, momentum, and seasonal baselines."
+    },
+    {
+      "name": "Anomaly + Risk Engine",
+      "type": "analytics",
+      "status": "ready",
+      "detail": "Z-score anomaly detection with focus-productivity risk scoring."
+    },
+    {
+      "name": "NeuroSync Assistant LLM",
+      "type": "assistant",
+      "status": "local",
+      "detail": "Context-aware assistant with local fallback logic."
+    }
+  ],
+  "timeline": [
+    {
+      "id": "7f8fcf1c-66dd-49ad-a185-a6130ddd8643",
+      "tag": "Decision",
+      "text": "Lock onto active workspace selection - Emotion update",
+      "timestamp": "01:50 AM"
+    },
+    {
+      "id": "9e295e77-832e-4732-a042-6d0cd43d0897",
+      "tag": "Decision",
+      "text": "Lock onto active workspace selection - Gesture update",
+      "timestamp": "01:50 AM"
+    },
+    {
+      "id": "f486c4ab-523f-4e50-9b7b-c0656af568ee",
+      "tag": "Decision",
+      "text": "Lock onto active workspace selection - Emotion update",
+      "timestamp": "01:50 AM"
+    },
+    {
+      "id": "96fef831-0f85-426a-a641-8bc4b42ce585",
+      "tag": "Decision",
+      "text": "Lock onto active workspace selection - Gesture update",
+      "timestamp": "01:50 AM"
+    },
+    {
+      "id": "7e156385-bb10-4c2b-b983-ebabbfff2919",
+      "tag": "Decision",
+      "text": "Lock onto active workspace selection - Emotion update",
+      "timestamp": "01:50 AM"
+    },
+    {
+      "id": "a5bb309f-2ea9-4f13-9c6a-2230072c3760",
+      "tag": "Decision",
+      "text": "Lock onto active workspace selection - Gesture update",
+      "timestamp": "01:50 AM"
+    },
+    {
+      "id": "9f9642de-ba00-4cd0-8cf5-d263aec5695a",
+      "tag": "Decision",
+      "text": "Lock onto active workspace selection - Emotion update",
+      "timestamp": "01:50 AM"
+    },
+    {
+      "id": "8a5ae058-d372-42b9-9bc8-a766eb35ee58",
+      "tag": "Decision",
+      "text": "Lock onto active workspace selection - Gesture update",
+      "timestamp": "01:50 AM"
+    }
+  ]
+}

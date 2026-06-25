@@ -1,37 +1,23 @@
-# NeuroSync AI: Multimodal Intelligence Dashboard & Architecture
+# NeuroSync AI: Multimodal Intelligence Dashboard & Architecture Analysis
 
-NeuroSync AI is an immersive, real-time multimodal dashboard designed to fuse live human sensory perception (vision, emotion, attention, gesture, voice, audio) with backend predictive analytics (CSV metrics, ensemble forecasting models) and decision intelligence.
-
-The system operates as a hybrid client-server application, featuring an offline fallback system when local webcams or microphone devices are missing or backend connections are offline.
-
----
-
-## 🚀 Key Features
-
-* **Live Webcam Perception Lab:** Real-time mirrored webcam canvas tracking with 21-point hand and 468-point face mesh overlays via browser-native MediaPipe models.
-* **Camera-Only Fallback Engine:** Low-latency heuristic movement tracking when landmark models fail to load or CPU throttling occurs.
-* **Speech Command & Synthesis System:** Hands-free command control and voice reply synthesis powered by browser Speech Recognition/Synthesis APIs.
-* **Audio Waveform Monitor:** Visual ambient oscilloscope and mic volume parser measuring speech energy.
-* **Voice Tone Analyzer:** Real-time vocal metrics analysis evaluating pitch, frequency instability (jitter), and speech volume.
-* **Advanced Analytics & Forecasting Engine:** Blends 4 forecasting models (Linear, EMA, Momentum, Seasonal Naive) to project productivity, detect Z-score anomalies, and compute focus-productivity correlation.
-* **Signal Fusion Decision Engine:** Combines multi-stream metrics into a single recommended action state (e.g. Critical Stress Intervention, Focus Preservation, Recovery break).
-* **Six Custom Stylesheet Themes:** Sleek responsive glassmorphic layouts styled in Neon (Default), Aurora, Ember, Cobalt, Focus, and Calm themes.
-* **Downloadable Session Reports:** Generates structured, time-stamped text files complete with machine-readable JSON snapshots.
+NeuroSync AI is an immersive, multimodal dashboard designed to fuse live sensory perception (vision, emotion, gesture, voice, audio) with backend predictive analytics (CSV analytics, forecasting models) and decision intelligence in real time. 
 
 ---
 
 ## 📂 Core Project Directory Structure
 
+Here is how the project components are organized across the workspace:
+
 ```text
 NeuroSync - AI/
 ├── Ai_models/               # Python ML models & baseline scripts
-│   ├── __init__.py          # Package initialization script
+│   ├── __init__.py          # Initialization script
 │   ├── analytics_engine.py  # Advanced forecasting, anomaly detection, risk & confidence calculations
-│   ├── baseline_models.py   # Baseline regression and Random Forest training scripts
+│   ├── baseline_models.py   # Code for loading CSV data, training Linear Regression and Random Forest models
 │   ├── decision_fusion.py   # Complex signal fusion logic combining gestures, facial expressions, and voice metrics
 │   ├── lstm_placeholder.py  # A moving-average fallback placeholder simulating an LSTM sequence forecast
 │   ├── tone_analyzer.py     # Rules-based analysis of voice pitch, jitter, and energy thresholds
-│   └── trained/             # Export directory for trained serialization models (.joblib)
+│   └── trained/             # Directory where trained .joblib models are exported
 │
 ├── Assets/                  # Visual branding assets and logos
 │
@@ -102,7 +88,7 @@ graph TD
 
 ---
 
-## 🧠 Multimodal Input Streams (Perception Lab)
+## 📂 Multimodal Input Streams (Perception Lab)
 
 ### 1. Vision & Gesture Tracking
 * **MediaPipe Hands:** Analyzes 21 points on up to two hands. Heuristics are computed in [app.js](file:///c:/Users/parth/OneDrive/Desktop/Project%20and%20work/NeuroSync%20-%20AI/Frontend/app.js) to recognize gestures:
@@ -210,21 +196,41 @@ To account for environmental noise, the decision confidence is dynamically dampe
 
 ---
 
-## ⚙️ Local Setup & Execution Guide
+## 💬 AI Copilot Assistant
+
+* **OpenAI Assistant API Hook:** Wires directly to FastAPI. If an `OPENAI_API_KEY` is provided in environment variables, the backend parses chat prompts and injects the live context dictionary (`detection`, `analytics`, `decision`). It formats the system instruction:
+  > You are NeuroSync AI, a multimodal assistant for gesture, voice, emotion, analytics, and decision intelligence. Keep responses concise, practical, and grounded in the provided context.
+* **Local Fallback Engine:** If no OpenAI key is set, the system falls back to a rules engine. It uses key phrase matching (e.g., `gesture`, `forecast`, `decision`, `insight`) to reply with structured state readouts.
+
+---
+
+## 🎨 Themes & Customization
+
+The dashboard includes a CSS stylesheet (`styles.css`) that leverages CSS variables (`--bg`, `--accent`, `--panel-bg`) to define six distinct styling themes:
+1. **Neon (Default):** Vibrant cyberpunk grid with neon cyan and magenta accents.
+2. **Aurora:** Calm organic theme with northern-lights green and dark-forest greens.
+3. **Ember:** High-contrast volcanic layout with dark charcoal and glowing orange details.
+4. **Cobalt:** Industrial scientific layout with slate blues and electric blue borders.
+5. **Focus:** Clean monochrome dark theme optimized to eliminate distractions.
+6. **Calm:** Gentle lavender-gray styling with muted purple tones.
+
+---
+
+## ⚙️ How to Run the Project Locally
 
 ### 1. Prerequisites
-* **Python:** Version `3.9` or newer.
-* **Browser:** Chrome, Edge, or Firefox with webcam & mic support.
-* **Connection:** Internet access is required to fetch MediaPipe scripts from CDNs.
+* **Python:** version `3.9` or newer installed.
+* **Web Browser:** A modern browser with webcam and microphone support (Chrome or Edge recommended for speech APIs).
+* **Internet Connection:** Needed to fetch MediaPipe models from the CDN.
 
-### 2. Dependency Installation
-Open your terminal and install all core requirements from the root directory:
+### 2. Quick Local Setup
+Clone the repository and install all backend requirements:
 ```powershell
 pip install -r requirements.txt
 ```
 
-### 3. Startup Command
-Run uvicorn to serve the application:
+### 3. Start the Backend API
+Start the FastAPI server via Uvicorn:
 ```powershell
 python -m uvicorn app.main:app --app-dir Backend --host 127.0.0.1 --port 8000
 ```
@@ -235,95 +241,83 @@ http://127.0.0.1:8000
 > [!IMPORTANT]
 > Make sure to load the project from `http://127.0.0.1:8000` rather than opening `index.html` as a file; browser camera/microphone APIs require local network serving or HTTPS to run.
 
-### 4. Setup Optional OpenAI Copilot
-To enable the AI Copilot Assistant, set the environment variables:
+### 4. Optional Configurations (OpenAI Integration)
+Create a `.env` file in the root workspace or set environment variables:
 ```powershell
-$env:OPENAI_API_KEY="your_actual_api_key_here"
+$env:OPENAI_API_KEY="your-openai-api-key-here"
 $env:OPENAI_MODEL="gpt-4o-mini"
 ```
-Then restart the backend. If no key is set, the system uses the local key-phrase fallback engine.
+If these variables are missing, the system will gracefully use the local rules fallback engine.
 
 ---
 
-## 🐳 Containerized Running (Docker)
+## 🐳 Docker Deployment & Containment
 
-To run the application using Docker:
+A fully-configured Docker Compose file is available to launch the service in isolated containers:
 ```powershell
 cd Docker
 docker compose up --build
 ```
-Open browser to `http://127.0.0.1:8000`.
+This binds to `http://127.0.0.1:8000` automatically.
 
 ---
 
-## 🚀 Production Deployment Guidelines
+## 🚀 Vercel Production Deployment
 
-### 1. Vercel Serverless Deployment
-The repository includes `vercel.json` and `api/index.py` configuration files to deploy directly to Vercel:
-* Push your workspace repository to **GitHub**.
-* Import the repository in [Vercel](https://vercel.com/new).
-* Set framework preset to **Other**.
-* (Optional) Define `OPENAI_API_KEY` under Environment Variables.
-* Click **Deploy**.
+The project is pre-configured with `vercel.json` and `api/index.py` for cloud-based serverless deployment.
 
-### 2. Deployment via Vercel CLI
+### 1. GitHub Integration (Recommended)
+1. Push your workspace repository to GitHub.
+2. Open Vercel and import your repository.
+3. Set Framework Preset as **Other**.
+4. (Optional) Define your environment variable overrides (`OPENAI_API_KEY`).
+5. Click **Deploy**.
+
+### 2. Vercel CLI Deployment
+Deploy a preview environment or production directly from your local terminal:
 ```powershell
+# Install Vercel CLI globally
 npm install -g vercel
+
+# Authenticate
 vercel login
-vercel        # Preview Build
-vercel --prod # Production Deploy
-```
 
-### 3. Procfile Deployment
-For platforms like Render or Heroku, the project includes a root `Procfile` containing the launch command:
-```text
-web: uvicorn app.main:app --app-dir Backend --host 0.0.0.0 --port ${PORT:-8000}
+# Trigger Preview Build
+vercel
+
+# Deploy to Production
+vercel --prod
 ```
 
 ---
 
-## 📊 CSV File Formatting
-The Analytics engine parses and auto-detects metrics based on column keywords. Best results come from CSV formats resembling:
-```csv
-date,focus_score,productivity_score,emotion_score,tasks_completed
-2026-04-01,82,76,73,5
-2026-04-02,85,81,75,6
-```
-Supported column matching hints:
-* **Date:** `date`, `time`, `timestamp`, `day`
-* **Focus:** `focus`, `attention`, `concentration`
-* **Productivity:** `productivity`, `efficiency`, `output`
-* **Emotion:** `emotion`, `sentiment`, `mood`
-* **Tasks:** `task`, `completed`, `deliverable`
+## 📊 Summary of Main API Endpoints
+
+FastAPI exposes the following JSON endpoints in [main.py](file:///c:/Users/parth/OneDrive/Desktop/Project%20and%20work/NeuroSync%20-%20AI/Backend/app/main.py):
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| **GET** | `/api/health` | Returns API status, app version, OpenAI capability, and model statuses. |
+| **GET** | `/api/models/status` | Queries the AI model registry and checks which models are loaded. |
+| **POST** | `/api/assistant/chat` | Receives messages with system context; runs OpenAI completion or falls back to local rules. |
+| **POST** | `/api/analytics/analyze` | Receives JSON rows of productivity telemetry; returns forecast calculations and observations. |
+| **POST** | `/api/decision/recommend` | Runs the signal-fusion engine on combined inputs, returning a decision and action queue. |
+| **GET** | `/` | Serves the frontend entry point `index.html`. |
+| **GET** | `/styles.css` | Serves the layout styling. |
+| **GET** | `/app.js` | Serves the main JavaScript code. |
 
 ---
 
-## 📥 Downloadable Session Reports
-The **Download Report** functionality generates a summary detailing:
-* Timestamped operational metrics.
-* Core perception streams state.
-* Advanced mathematical analytics forecasts, risk assessments, and model list.
-* Behavior-based decision recommendations and priority queue logs.
-* Event timelines and a machine-readable JSON snapshot.
+## 🔍 Validation Commands
 
----
-
-## 🔍 Verification & Integrity Checks
-
+Verify your syntax and execution logic with standard tests:
 ```powershell
-# Syntax compile verification
+# Compile check python packages
 python -m compileall Backend\app
 
-# Check JavaScript syntax
+# Check Javascript syntax errors
 node --check Frontend\app.js
 
-# Health Check query
+# Health check via HTTP request
 Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8000/api/health
 ```
-
----
-
-## 🛡️ Production & Security Notes
-* **HTTPS Requirement:** Web camera and microphone access require secure context (HTTPS) when deployed publicly. Vercel implements HTTPS automatically.
-* **CORS Settings:** Adjust CORS permissions in `Backend/app/config.py` for public staging to restrict access.
-* **Benign Log Filtering:** The frontend console filters runtime WebGL/TFLite warning messages from MediaPipe so key application logs remain clean.

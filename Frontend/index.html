@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NeuroSync AI</title>
-    <link rel="icon" type="image/png" href="../Assets/neurosync-logo.png">
+    <link rel="icon" type="image/svg+xml" href="./Assets/neurosync-logo.svg">
     <meta
       name="description"
       content="NeuroSync AI v2 immersive frontend for gesture, face, voice, analytics, and decision intelligence."
@@ -15,7 +15,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Orbitron:wght@500;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./styles.css?v=2.1" />
   </head>
   <body>
     <div class="ambient-layer" aria-hidden="true">
@@ -32,7 +32,7 @@
         <div class="start-brand">
           <img
             class="brand-logo large"
-            src="../Assets/neurosync-logo.png"
+            src="./Assets/neurosync-logo.svg"
             alt="NeuroSync AI logo"
           />
           <div>
@@ -86,7 +86,7 @@
         <a class="brand" href="#overview">
           <img
             class="brand-logo"
-            src="../Assets/neurosync-logo.png"
+            src="./Assets/neurosync-logo.svg"
             alt="NeuroSync AI logo"
           />
           <span class="brand-copy">
@@ -121,416 +121,481 @@
         <span id="voiceIndicatorText">Voice Standby</span>
       </div>
 
-      <main class="dashboard-grid">
-        <section class="hero-card panel" id="overview">
-          <div class="hero-copy">
-            <div class="hero-heading">
-              <p class="eyebrow">Gesture + Face + Voice + AI + Forecasting</p>
+      <main class="dashboard-grid hud-grid">
+        <!-- LEFT WING: SYSTEM DIAGNOSTICS & TELEMETRY -->
+        <div class="hud-wing left-wing">
+          <!-- PANEL 1: Diagnostics Core -->
+          <section class="panel diagnostics-panel" id="overview">
+            <div class="hud-corners"><div class="c-tl"></div><div class="c-tr"></div><div class="c-bl"></div><div class="c-br"></div><span class="hud-panel-id">SYS.HEALTH // DECK.01</span></div>
+            <div class="panel-heading">
+              <div>
+                <p class="panel-kicker">Diagnostics Core</p>
+                <h2>System Health</h2>
+              </div>
               <span class="inline-chip" id="runtimeModeLabel">Hybrid Demo</span>
             </div>
 
-            <h2>Human-like control, predictive insight, and adaptive response in one immersive UI.</h2>
-            <p class="hero-text">
-              NeuroSync AI v2 turns camera perception, emotional inference, voice, analytics,
-              and decision support into a single real-time operational surface.
-            </p>
-
-            <div class="hero-actions">
-              <button class="primary-btn" id="startCameraBtn">Start Camera</button>
-              <button class="secondary-btn" id="stopCameraBtn">Stop Camera</button>
-              <button class="secondary-btn" id="startVoiceBtn">Start Voice</button>
-              <button class="secondary-btn" id="loadSampleBtn">Load Sample Analytics</button>
-            </div>
-
-            <div class="hero-metrics">
-              <article>
-                <span>Live Gesture</span>
-                <strong id="heroGesture">Idle</strong>
-              </article>
-              <article>
-                <span>Emotion State</span>
-                <strong id="heroEmotion">Neutral</strong>
-              </article>
-              <article>
-                <span>Predicted Productivity</span>
-                <strong id="heroForecast">--</strong>
-              </article>
-              <article>
-                <span>Decision Confidence</span>
-                <strong id="heroConfidence">--</strong>
-              </article>
-            </div>
-          </div>
-
-          <aside class="hero-aside">
-            <div class="panel-heading compact">
-              <div>
-                <p class="panel-kicker">Interface Modes</p>
-                <h3>Theme Matrix</h3>
-              </div>
-            </div>
-
-            <div class="theme-switcher">
-              <button class="theme-chip active" data-theme="neon">Neon</button>
-              <button class="theme-chip" data-theme="aurora">Aurora</button>
-              <button class="theme-chip" data-theme="ember">Ember</button>
-              <button class="theme-chip" data-theme="cobalt">Cobalt</button>
-              <button class="theme-chip" data-theme="focus">Focus</button>
-              <button class="theme-chip" data-theme="calm">Calm</button>
-            </div>
-
             <div class="status-grid">
-              <article>
-                <span>Camera</span>
+              <article class="telemetry-card">
+                <span>Camera Feed</span>
                 <strong id="cameraHealth">Waiting</strong>
               </article>
-              <article>
-                <span>Voice</span>
+              <article class="telemetry-card">
+                <span>Vocal Stream</span>
                 <strong id="voiceHealth">Standby</strong>
               </article>
-              <article>
+              <article class="telemetry-card">
                 <span>Vision Models</span>
                 <strong id="visionHealth">Checking</strong>
               </article>
-              <article>
-                <span>Analytics Engine</span>
+              <article class="telemetry-card">
+                <span>Analytics Core</span>
                 <strong id="analyticsHealth">Cold Start</strong>
               </article>
             </div>
-          </aside>
-        </section>
 
-        <section class="assistant-panel panel" id="assistant">
-          <div class="panel-heading">
-            <div>
-              <p class="panel-kicker">AI Copilot</p>
-              <h2>Context-Aware Assistant</h2>
+            <div class="theme-switcher-deck">
+              <p class="panel-kicker">Theme Reactor Matrix</p>
+              <div class="theme-switcher">
+                <button class="theme-chip active" data-theme="neon">Neon</button>
+                <button class="theme-chip" data-theme="aurora">Aurora</button>
+                <button class="theme-chip" data-theme="ember">Ember</button>
+                <button class="theme-chip" data-theme="cobalt">Cobalt</button>
+                <button class="theme-chip" data-theme="focus">Focus</button>
+                <button class="theme-chip" data-theme="calm">Calm</button>
+              </div>
             </div>
-            <span class="inline-chip" id="assistantModeBadge">Local Intelligence</span>
-          </div>
+          </section>
 
-          <div class="suggestion-row">
-            <button class="chip-btn" data-prompt="Summarize the current multimodal state.">
-              State Summary
-            </button>
-            <button class="chip-btn" data-prompt="What should I do based on the latest analytics?">
-              Recommended Action
-            </button>
-            <button class="chip-btn" data-prompt="How is productivity trending?">
-              Productivity Trend
-            </button>
-          </div>
-
-          <div class="chat-feed" id="chatFeed" aria-live="polite"></div>
-
-          <form class="chat-form" id="chatForm">
-            <label class="sr-only" for="chatInput">Ask NeuroSync AI</label>
-            <input
-              id="chatInput"
-              name="chatInput"
-              type="text"
-              autocomplete="off"
-              placeholder="Ask about gestures, emotion, forecasts, business insights, or next actions..."
-            />
-            <button class="primary-btn" type="submit">Send</button>
-          </form>
-        </section>
-
-        <section class="perception-panel panel" id="perception">
-          <div class="panel-heading">
-            <div>
-              <p class="panel-kicker">Perception Lab</p>
-              <h2>Live Gesture + Face + Voice Telemetry</h2>
-            </div>
-            <span class="inline-chip">AR Overlay Active</span>
-          </div>
-
-          <div class="perception-layout">
-            <div class="live-feed-card">
-              <div class="video-stage">
-                <video id="cameraVideo" autoplay muted playsinline></video>
-                <canvas id="overlayCanvas"></canvas>
-                <div class="stage-badge" id="stageBadge">
-                  <span class="stage-dot" id="stageDot" aria-hidden="true"></span>
-                  <span id="stageFeedStatus">Camera Ready</span>
-                </div>
-                <div class="stage-overlay">
-                  <span>Gesture: <strong id="stageGestureValue">Idle</strong></span>
-                  <span>Emotion: <strong id="stageEmotionValue">Neutral</strong></span>
-                </div>
-                <div class="stage-empty" id="stageEmptyState">
-                  <p>Launch camera access to activate live gesture and face inference.</p>
-                  <small>Fallback demo signals continue if webcam permissions are blocked.</small>
-                </div>
+          <!-- PANEL 2: Edge Middleware Stack & Model Registry -->
+          <section class="panel model-registry-panel">
+            <div class="hud-corners"><div class="c-tl"></div><div class="c-tr"></div><div class="c-bl"></div><div class="c-br"></div><span class="hud-panel-id">AI.MODELS // REGISTRY.02</span></div>
+            <div class="panel-heading">
+              <div>
+                <p class="panel-kicker">Edge Middleware Stack</p>
+                <h2>Model Registry</h2>
               </div>
             </div>
 
-            <div class="audio-console">
-              <div class="audio-card">
-                <div class="audio-header">
-                  <div>
-                    <p class="panel-kicker">Audio Monitor</p>
-                    <h3>Mic Input + Voice State</h3>
-                  </div>
-                  <span class="inline-chip" id="audioHealth">Standby</span>
+            <div class="model-stack-deck">
+              <div class="model-stack">
+                <div class="stack-row">
+                  <span>MediaPipe Hands</span>
+                  <span id="handsStackState">Pending</span>
                 </div>
-
-                <div class="assistant-avatar" id="assistantAvatar" aria-hidden="true">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                  <strong>AI</strong>
+                <div class="stack-row">
+                  <span>FaceMesh</span>
+                  <span id="faceStackState">Pending</span>
                 </div>
-
-                <canvas id="audioWaveCanvas" width="320" height="120"></canvas>
-
-                <div class="audio-meter-card">
-                  <div class="audio-meter-head">
-                    <span>Live Mic Level</span>
-                    <strong id="audioLevelValue">0%</strong>
-                  </div>
-                  <div class="audio-meter">
-                    <span id="audioLevelBar"></span>
-                  </div>
-                  <small id="audioMeta">Microphone monitoring starts with the live experience or voice controls.</small>
+                <div class="stack-row">
+                  <span>Voice Agent</span>
+                  <span id="voiceStackState">Pending</span>
                 </div>
-
-                <div class="audio-stats">
-                  <article>
-                    <span>Recognition</span>
-                    <strong id="audioRecognitionValue">Idle</strong>
-                  </article>
-                  <article>
-                    <span>Speech Output</span>
-                    <strong id="audioOutputValue">Ready</strong>
-                  </article>
+                <div class="stack-row">
+                  <span>Analytics + Forecast</span>
+                  <span id="forecastStackState">Pending</span>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="sensor-grid">
-            <article class="sensor-card">
-              <span>Gesture</span>
-              <strong id="gestureValue">Idle</strong>
-              <small id="gestureMeta">Awaiting hand landmarks</small>
-            </article>
-            <article class="sensor-card">
-              <span>Emotion</span>
-              <strong id="emotionValue">Neutral</strong>
-              <small id="emotionMeta">No face signal yet</small>
-            </article>
-            <article class="sensor-card">
-              <span>Attention</span>
-              <strong id="attentionValue">--</strong>
-              <small id="attentionMeta">Focus heuristics offline</small>
-            </article>
-            <article class="sensor-card">
-              <span>Voice Command</span>
-              <strong id="voiceValue">Standby</strong>
-              <small id="voiceMeta">Recognition not started</small>
-            </article>
-          </div>
-
-          <div class="status-cluster">
-            <div class="model-stack">
-              <div class="stack-row">
-                <span>MediaPipe Hands</span>
-                <span id="handsStackState">Pending</span>
-              </div>
-              <div class="stack-row">
-                <span>FaceMesh</span>
-                <span id="faceStackState">Pending</span>
-              </div>
-              <div class="stack-row">
-                <span>Voice Agent</span>
-                <span id="voiceStackState">Pending</span>
-              </div>
-              <div class="stack-row">
-                <span>Analytics + Forecast</span>
-                <span id="forecastStackState">Pending</span>
               </div>
             </div>
 
             <div class="model-registry">
-              <p class="panel-kicker">AI Model Registry</p>
               <div class="model-grid" id="modelGrid"></div>
             </div>
+          </section>
+        </div>
 
-            <div class="transcript-card">
+        <!-- CENTER CORE: LIVE PERCEPTION TARGET RETICLE -->
+        <div class="hud-wing center-core">
+          <section class="panel perception-panel" id="perception">
+            <div class="hud-corners"><div class="c-tl"></div><div class="c-tr"></div><div class="c-bl"></div><div class="c-br"></div><span class="hud-panel-id">AR.PERCEPTION // FEED.02</span></div>
+            
+            <div class="panel-heading">
               <div>
-                <p class="panel-kicker">Latest Transcript</p>
+                <p class="panel-kicker">Primary Sensor Input</p>
+                <h2>AR Multimodal Deck</h2>
+              </div>
+              <span class="inline-chip">Targeting Lock Active</span>
+            </div>
+
+            <div class="cockpit-controls panel-heading">
+              <div class="hero-actions">
+                <button class="primary-btn" id="startCameraBtn">Start Camera</button>
+                <button class="secondary-btn" id="stopCameraBtn">Stop Camera</button>
+                <button class="secondary-btn" id="startVoiceBtn">Start Voice</button>
+                <button class="secondary-btn" id="loadSampleBtn">Load Sample Analytics</button>
+              </div>
+            </div>
+
+            <div class="hud-top-telemetry">
+              <div class="hud-telemetry-cell">
+                <span>Active Gesture</span>
+                <strong id="heroGesture">Idle</strong>
+              </div>
+              <div class="hud-telemetry-cell">
+                <span>Emotion Mode</span>
+                <strong id="heroEmotion">Neutral</strong>
+              </div>
+              <div class="hud-telemetry-cell">
+                <span>Efficiency Forecast</span>
+                <strong id="heroForecast">--</strong>
+              </div>
+              <div class="hud-telemetry-cell">
+                <span>Decision Reliability</span>
+                <strong id="heroConfidence">--</strong>
+              </div>
+            </div>
+
+            <div class="perception-layout">
+              <div class="live-feed-card">
+                <div class="video-stage">
+                  <div class="hud-scanline"></div>
+                  <div class="hud-crosshair">
+                    <div class="ch-circle-outer"></div>
+                    <div class="ch-circle-inner"></div>
+                    <div class="ch-lines"></div>
+                  </div>
+                  <video id="cameraVideo" autoplay muted playsinline></video>
+                  <canvas id="overlayCanvas"></canvas>
+                  <div class="stage-badge" id="stageBadge">
+                    <span class="stage-dot" id="stageDot" aria-hidden="true"></span>
+                    <span id="stageFeedStatus">Camera Ready</span>
+                  </div>
+                  <div class="stage-overlay">
+                    <span>Gesture: <strong id="stageGestureValue">Idle</strong></span>
+                    <span>Emotion: <strong id="stageEmotionValue">Neutral</strong></span>
+                    <span>Vocal Tone: <strong id="stageVoiceToneValue">Calm</strong></span>
+                  </div>
+                  <div class="stage-empty" id="stageEmptyState">
+                    <p>Launch camera access to activate live gesture and face inference.</p>
+                    <small>Fallback demo signals continue if webcam permissions are blocked.</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="audio-console">
+                <div class="audio-card">
+                  <div class="audio-header">
+                    <div>
+                      <p class="panel-kicker">Vocal Diagnostics</p>
+                      <h3>Audio wave + Resonance</h3>
+                    </div>
+                    <span class="inline-chip" id="audioHealth">Standby</span>
+                  </div>
+
+                  <div class="assistant-avatar" id="assistantAvatar" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <strong>NS</strong>
+                  </div>
+
+                  <canvas id="audioWaveCanvas" width="320" height="100"></canvas>
+
+                  <div class="audio-meter-card">
+                    <div class="audio-meter-head">
+                      <span>Mic Input Level</span>
+                      <strong id="audioLevelValue">0%</strong>
+                    </div>
+                    <div class="audio-meter">
+                      <span id="audioLevelBar"></span>
+                    </div>
+                    <div class="audio-metrics-row" style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 11px; opacity: 0.85;">
+                      <span>Noise Floor: <strong id="audioNoiseFloor">0%</strong></span>
+                      <span>Voice Energy: <strong id="audioSpeechEnergy">0%</strong></span>
+                    </div>
+                    <div class="audio-metrics-row-2" style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 11px; opacity: 0.85;">
+                      <span>Voice Pitch: <strong id="audioVoicePitch">0 Hz</strong></span>
+                      <span>Tone Profile: <strong id="audioToneProfile">Calm</strong></span>
+                    </div>
+                    <small id="audioMeta" style="margin-top: 8px; display: block; font-size: 10px; line-height: 1.3;">Microphone monitoring starts with live commands.</small>
+                  </div>
+
+                  <div class="audio-stats">
+                    <article>
+                      <span>Speech Recognizer</span>
+                      <strong id="audioRecognitionValue">Idle</strong>
+                    </article>
+                    <article>
+                      <span>Audio Output Synthesizer</span>
+                      <strong id="audioOutputValue">Ready</strong>
+                    </article>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="sensor-grid">
+              <article class="sensor-card">
+                <span>Gesture Telemetry</span>
+                <strong id="gestureValue">Idle</strong>
+                <small id="gestureMeta">Awaiting hand landmarks</small>
+              </article>
+              <article class="sensor-card">
+                <span>Emotion Telemetry</span>
+                <strong id="emotionValue">Neutral</strong>
+                <small id="emotionMeta">No face signal yet</small>
+              </article>
+              <article class="sensor-card">
+                <span>Attention Metric</span>
+                <strong id="attentionValue">--</strong>
+                <small id="attentionMeta">Focus heuristics offline</small>
+              </article>
+              <article class="sensor-card">
+                <span>Voice Command Payload</span>
+                <strong id="voiceValue">Standby</strong>
+                <small id="voiceMeta">Recognition not started</small>
+              </article>
+            </div>
+
+          </section>
+
+          <!-- PANEL 2: Latest Transcript Payload -->
+          <section class="panel transcript-panel transcript-card">
+            <div class="hud-corners"><div class="c-tl"></div><div class="c-tr"></div><div class="c-bl"></div><div class="c-br"></div><span class="hud-panel-id">TRANSCRIPT // STREAM.04</span></div>
+            <div class="panel-heading">
+              <div>
+                <p class="panel-kicker">Latest Transcript Payload</p>
                 <h3 id="transcriptValue">No command captured yet.</h3>
               </div>
-              <p id="assistantSpeechValue">
-                Assistant voice output will appear here after commands or chat prompts.
-              </p>
             </div>
-          </div>
-        </section>
-
-        <section class="analytics-panel panel" id="analytics">
-          <div class="panel-heading">
-            <div>
-              <p class="panel-kicker">Analytics Engine</p>
-              <h2>CSV Intelligence Workspace</h2>
-            </div>
-            <div class="panel-actions">
-              <button class="secondary-btn small" id="runInsightBtn">Generate Insights</button>
-              <button class="secondary-btn small" id="downloadReportBtn">Download Report</button>
-            </div>
-          </div>
-
-          <label class="upload-card" for="csvFileInput" id="uploadCard">
-            <input id="csvFileInput" type="file" accept=".csv" hidden />
-            <strong>Drop a CSV or click to upload</strong>
-            <span id="uploadMeta">Expected columns: date, focus, productivity, emotion, tasks</span>
-          </label>
-
-          <div class="kpi-grid">
-            <article class="kpi-card">
-              <span>Rows</span>
-              <strong id="rowsMetric">0</strong>
-              <small>Data points loaded</small>
-            </article>
-            <article class="kpi-card">
-              <span>Avg Focus</span>
-              <strong id="focusMetric">--</strong>
-              <small>Behavior signal</small>
-            </article>
-            <article class="kpi-card">
-              <span>Avg Productivity</span>
-              <strong id="productivityMetric">--</strong>
-              <small>Output trend</small>
-            </article>
-            <article class="kpi-card">
-              <span>Forecast</span>
-              <strong id="forecastMetric">--</strong>
-              <small>Next-window estimate</small>
-            </article>
-            <article class="kpi-card">
-              <span>AI Confidence</span>
-              <strong id="modelConfidenceMetric">--</strong>
-              <small>Ensemble reliability</small>
-            </article>
-            <article class="kpi-card">
-              <span>Risk Score</span>
-              <strong id="riskMetric">--</strong>
-              <small>Anomaly and volatility risk</small>
-            </article>
-          </div>
-
-          <div class="chart-card">
-            <div class="chart-header">
-              <div>
-                <p class="panel-kicker">Trend View</p>
-                <h3>Productivity Forecast Curve</h3>
-              </div>
-              <span class="inline-chip" id="trendBadge">No data</span>
-            </div>
-            <canvas id="trendCanvas" width="640" height="280"></canvas>
-          </div>
-
-          <div class="insights-layout">
-            <section>
-              <p class="panel-kicker">Dataset Summary</p>
-              <div class="summary-list">
-                <div>
-                  <span>Primary Date Column</span>
-                  <strong id="dateColumnValue">Not detected</strong>
-                </div>
-                <div>
-                  <span>Focus Driver</span>
-                  <strong id="focusColumnValue">Not detected</strong>
-                </div>
-                <div>
-                  <span>Productivity Driver</span>
-                  <strong id="productivityColumnValue">Not detected</strong>
-                </div>
-              </div>
-            </section>
-
-            <section>
-              <p class="panel-kicker">AI Insights</p>
-              <ul class="insight-list" id="insightList"></ul>
-            </section>
-          </div>
-        </section>
-
-        <section class="decision-panel panel" id="intelligence">
-          <div class="panel-heading">
-            <div>
-              <p class="panel-kicker">Decision Intelligence</p>
-              <h2>Signal Fusion Engine</h2>
-            </div>
-            <button class="secondary-btn small" id="recomputeDecisionBtn">Recompute</button>
-          </div>
-
-          <div class="fusion-grid">
-            <div class="fusion-item">
-              <div>
-                <span>Gesture Weight</span>
-                <strong id="gestureWeightLabel">25%</strong>
-              </div>
-              <div class="progress-bar"><span id="gestureWeightBar"></span></div>
-            </div>
-            <div class="fusion-item">
-              <div>
-                <span>Emotion Weight</span>
-                <strong id="emotionWeightLabel">25%</strong>
-              </div>
-              <div class="progress-bar"><span id="emotionWeightBar"></span></div>
-            </div>
-            <div class="fusion-item">
-              <div>
-                <span>Voice Weight</span>
-                <strong id="voiceWeightLabel">20%</strong>
-              </div>
-              <div class="progress-bar"><span id="voiceWeightBar"></span></div>
-            </div>
-            <div class="fusion-item">
-              <div>
-                <span>Analytics Weight</span>
-                <strong id="analyticsWeightLabel">30%</strong>
-              </div>
-              <div class="progress-bar"><span id="analyticsWeightBar"></span></div>
-            </div>
-          </div>
-
-          <div class="decision-card">
-            <p class="panel-kicker">Current Recommended Action</p>
-            <h3 id="decisionTitle">Maintain ready state</h3>
-            <p id="decisionReason">
-              NeuroSync is waiting for perception inputs or analytics data before selecting an intelligent action.
+            <p id="assistantSpeechValue" style="margin: 0; color: var(--muted); line-height: 1.7;">
+              Assistant voice output will appear here after commands or chat prompts.
             </p>
-            <div class="decision-meta">
-              <span id="decisionConfidence">Confidence: --</span>
-              <span id="decisionMode">Mode: Observation</span>
-            </div>
-          </div>
+          </section>
+        </div>
 
-          <div class="action-columns">
-            <section>
-              <p class="panel-kicker">Priority Queue</p>
-              <ul class="action-list" id="actionQueue"></ul>
-            </section>
-            <section>
-              <p class="panel-kicker">Event Timeline</p>
-              <ul class="event-list" id="eventLog"></ul>
-            </section>
-          </div>
-
-          <div class="report-card">
-            <div>
-              <p class="panel-kicker">Session Record</p>
-              <h3>Downloadable AI Worklog</h3>
-              <p id="reportSummary">
-                Report includes current perception, analytics, AI confidence, risk score, insights, decision queue, and timeline.
-              </p>
+        <!-- RIGHT WING: COGNITIVE COPILOT & STRESS RELIEF -->
+        <div class="hud-wing right-wing">
+          <section class="panel assistant-panel" id="assistant">
+            <div class="hud-corners"><div class="c-tl"></div><div class="c-tr"></div><div class="c-bl"></div><div class="c-br"></div><span class="hud-panel-id">COGNITIVE.AI // DECK.03</span></div>
+            <div class="panel-heading">
+              <div>
+                <p class="panel-kicker">Cognitive Core</p>
+                <h2>Neuro Copilot</h2>
+              </div>
+              <span class="inline-chip" id="assistantModeBadge">Local Intelligence</span>
             </div>
-            <button class="primary-btn" id="decisionDownloadReportBtn" type="button">Download Report</button>
+
+            <div class="suggestion-row">
+              <button class="chip-btn" data-prompt="Summarize the current multimodal state.">State Summary</button>
+              <button class="chip-btn" data-prompt="What should I do based on the latest analytics?">Recommended Action</button>
+              <button class="chip-btn" data-prompt="How is productivity trending?">Productivity Trend</button>
+            </div>
+
+            <div class="copilot-controls">
+              <button class="chip-btn" id="toggleVoiceAgentBtn" type="button">
+                <span class="status-dot" id="voiceAgentDot"></span>
+                Voice Agent: OFF
+              </button>
+              <button class="chip-btn" id="toggleMuteBtn" type="button">
+                <span class="status-dot" id="muteDot"></span>
+                Muted: NO
+              </button>
+            </div>
+
+            <div class="chat-feed" id="chatFeed" aria-live="polite"></div>
+
+            <form class="chat-form" id="chatForm">
+              <label class="sr-only" for="chatInput">Ask NeuroSync AI</label>
+              <input
+                id="chatInput"
+                name="chatInput"
+                type="text"
+                autocomplete="off"
+                placeholder="Query system signals, forecasts, or fusion metrics..."
+              />
+              <button class="primary-btn" type="submit">Send</button>
+            </form>
+
+          </section>
+
+          <!-- PANEL 2: Breathing Synchronization Core Widget -->
+          <section id="stressReliefWidget" class="panel breathing-panel stress-relief-panel">
+            <div class="hud-corners"><div class="c-tl"></div><div class="c-tr"></div><div class="c-bl"></div><div class="c-br"></div><span class="hud-panel-id">BREATH.SYNC // CORE.06</span></div>
+            <div class="panel-heading">
+              <div>
+                <p class="panel-kicker">Breathing Synchronization Core</p>
+                <h2>Biometric Calibrator</h2>
+              </div>
+            </div>
+            <div class="breathing-circle"></div>
+            <small id="breathingStateText" class="breathing-text">Inhale... Exhale...</small>
+          </section>
+        </div>
+
+        <!-- LOWER OPERATIONS: CSV DATA ANALYTICS & SIGNAL FUSION ENGINE -->
+        <div class="hud-operations-base">
+          <div class="operations-grid">
+            
+            <!-- ANALYTICS SECTION -->
+            <section class="panel analytics-panel" id="analytics">
+              <div class="hud-corners"><div class="c-tl"></div><div class="c-tr"></div><div class="c-bl"></div><div class="c-br"></div><span class="hud-panel-id">CSV.DATA // PIPELINE.04</span></div>
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-kicker">Data Pipeline</p>
+                  <h2>CSV Intelligence Diagnostics</h2>
+                </div>
+                <div class="panel-actions">
+                  <button class="secondary-btn small" id="runInsightBtn">Generate Insights</button>
+                  <button class="secondary-btn small" id="downloadReportBtn">Download Report</button>
+                </div>
+              </div>
+
+              <label class="upload-card" for="csvFileInput" id="uploadCard">
+                <input id="csvFileInput" type="file" accept=".csv" hidden />
+                <strong>Drop local telemetry CSV here</strong>
+                <span id="uploadMeta">Expects: date, focus, productivity, emotion, tasks</span>
+              </label>
+
+              <div class="kpi-grid">
+                <article class="kpi-card">
+                  <span>Record Rows</span>
+                  <strong id="rowsMetric">0</strong>
+                  <small>Loaded coordinates</small>
+                </article>
+                <article class="kpi-card">
+                  <span>Focus Driver</span>
+                  <strong id="focusMetric">--</strong>
+                  <small>Average telemetry</small>
+                </article>
+                <article class="kpi-card">
+                  <span>Productivity Output</span>
+                  <strong id="productivityMetric">--</strong>
+                  <small>Average level</small>
+                </article>
+                <article class="kpi-card">
+                  <span>Ensemble Forecast</span>
+                  <strong id="forecastMetric">--</strong>
+                  <small>Predictive window</small>
+                </article>
+                <article class="kpi-card">
+                  <span>System Reliability</span>
+                  <strong id="modelConfidenceMetric">--</strong>
+                  <small>Model ensemble score</small>
+                </article>
+                <article class="kpi-card">
+                  <span>Volatility Risk</span>
+                  <strong id="riskMetric">--</strong>
+                  <small>Risk matrix score</small>
+                </article>
+              </div>
+
+              <div class="chart-card">
+                <div class="chart-header">
+                  <div>
+                    <p class="panel-kicker">Analytic Forecast Curves</p>
+                    <h3>Productivity Probability Vector</h3>
+                  </div>
+                  <span class="inline-chip" id="trendBadge">No data loaded</span>
+                </div>
+                <canvas id="trendCanvas" width="640" height="220"></canvas>
+              </div>
+
+              <div class="insights-layout">
+                <section>
+                  <p class="panel-kicker">Vector Resolution</p>
+                  <div class="summary-list">
+                    <div>
+                      <span>Date Dimension</span>
+                      <strong id="dateColumnValue">Not detected</strong>
+                    </div>
+                    <div>
+                      <span>Focus Coefficient</span>
+                      <strong id="focusColumnValue">Not detected</strong>
+                    </div>
+                    <div>
+                      <span>Productivity Driver</span>
+                      <strong id="productivityColumnValue">Not detected</strong>
+                    </div>
+                  </div>
+                </section>
+
+                <section>
+                  <p class="panel-kicker">AI Observations Pipeline</p>
+                  <ul class="insight-list" id="insightList"></ul>
+                </section>
+              </div>
+            </section>
+
+            <!-- SIGNAL FUSION & DECISION ENGINE -->
+            <section class="panel decision-panel" id="intelligence">
+              <div class="hud-corners"><div class="c-tl"></div><div class="c-tr"></div><div class="c-bl"></div><div class="c-br"></div><span class="hud-panel-id">DECISION.FUSION // ENGINE.05</span></div>
+              <div class="panel-heading">
+                <div>
+                  <p class="panel-kicker">Signal Fusion System</p>
+                  <h2>Decision Intelligence Core</h2>
+                </div>
+                <button class="secondary-btn small" id="recomputeDecisionBtn">Recompute Signals</button>
+              </div>
+
+              <div class="fusion-grid">
+                <div class="fusion-item">
+                  <div>
+                    <span>Gesture Sensor Weight</span>
+                    <strong id="gestureWeightLabel">25%</strong>
+                  </div>
+                  <div class="progress-bar"><span id="gestureWeightBar"></span></div>
+                </div>
+                <div class="fusion-item">
+                  <div>
+                    <span>Emotion Inference Weight</span>
+                    <strong id="emotionWeightLabel">25%</strong>
+                  </div>
+                  <div class="progress-bar"><span id="emotionWeightBar"></span></div>
+                </div>
+                <div class="fusion-item">
+                  <div>
+                    <span>Speech Input Weight</span>
+                    <strong id="voiceWeightLabel">20%</strong>
+                  </div>
+                  <div class="progress-bar"><span id="voiceWeightBar"></span></div>
+                </div>
+                <div class="fusion-item">
+                  <div>
+                    <span>CSV Analytic Weight</span>
+                    <strong id="analyticsWeightLabel">30%</strong>
+                  </div>
+                  <div class="progress-bar"><span id="analyticsWeightBar"></span></div>
+                </div>
+              </div>
+
+              <div class="decision-card">
+                <p class="panel-kicker">Adaptive Action Strategy</p>
+                <h3 id="decisionTitle">Maintain ready state</h3>
+                <p id="decisionReason">
+                  NeuroSync is waiting for perception inputs or analytics data before selecting an intelligent action.
+                </p>
+                <div class="decision-meta">
+                  <span id="decisionConfidence">Confidence: --</span>
+                  <span id="decisionMode">Mode: Observation</span>
+                </div>
+              </div>
+
+              <div class="action-columns">
+                <section>
+                  <p class="panel-kicker">Operational Action Queue</p>
+                  <ul class="action-list" id="actionQueue"></ul>
+                </section>
+                <section>
+                  <p class="panel-kicker">Live Telemetry Timeline</p>
+                  <ul class="event-list" id="eventLog"></ul>
+                </section>
+              </div>
+
+              <div class="report-card">
+                <div>
+                  <p class="panel-kicker">Tactical Logging</p>
+                  <h3>Compile Operational Report</h3>
+                  <p id="reportSummary">
+                    Report compiles real-time perception state, confidence parameters, CSV metrics, and action logs.
+                  </p>
+                </div>
+                <button class="primary-btn" id="decisionDownloadReportBtn" type="button">Download Report</button>
+              </div>
+            </section>
+            
           </div>
-        </section>
+        </div>
       </main>
     </div>
 
@@ -564,10 +629,6 @@
         };
       });
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
     <script src="./app.js"></script>
   </body>
 </html>
