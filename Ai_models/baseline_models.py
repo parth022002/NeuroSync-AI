@@ -65,8 +65,20 @@ def train_baseline_models(dataframe: pd.DataFrame, output_dir: str | Path) -> di
     forest_train_preds = forest_model.predict(x_train)
     forest_test_preds = forest_model.predict(x_test)
 
+    mlp_model = MLPRegressor(
+        hidden_layer_sizes=(64, 32),
+        activation="relu",
+        solver="adam",
+        max_iter=1000,
+        random_state=42,
+    )
+    mlp_model.fit(x_train, y_train)
+    mlp_train_preds = mlp_model.predict(x_train)
+    mlp_test_preds = mlp_model.predict(x_test)
+
     joblib.dump(linear_model, output_path / "productivity_linear.joblib")
     joblib.dump(forest_model, output_path / "productivity_forest.joblib")
+    joblib.dump(mlp_model, output_path / "productivity_mlp.joblib")
 
     return {
         "linear_mae": float(mean_absolute_error(y_train, linear_train_preds)),
@@ -78,4 +90,10 @@ def train_baseline_models(dataframe: pd.DataFrame, output_dir: str | Path) -> di
         "forest_r2": float(r2_score(y_train, forest_train_preds)),
         "forest_test_mae": float(mean_absolute_error(y_test, forest_test_preds)),
         "forest_test_r2": float(r2_score(y_test, forest_test_preds)),
+
+        "mlp_mae": float(mean_absolute_error(y_train, mlp_train_preds)),
+        "mlp_r2": float(r2_score(y_train, mlp_train_preds)),
+        "mlp_test_mae": float(mean_absolute_error(y_test, mlp_test_preds)),
+        "mlp_test_r2": float(r2_score(y_test, mlp_test_preds)),
     }
+

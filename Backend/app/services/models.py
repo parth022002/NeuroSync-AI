@@ -42,6 +42,12 @@ def get_model_status(openai_enabled: bool) -> List[Dict[str, Any]]:
             "detail": "Fast trend baseline for next-window estimates.",
         },
         {
+            "name": "Productivity MLP Neural Network",
+            "type": "analytics",
+            "status": "trained" if "productivity_mlp.joblib" in trained_files else "fallback",
+            "detail": "Multi-Layer Perceptron neural network model for productivity forecasting.",
+        },
+        {
             "name": "Weighted Forecast Ensemble",
             "type": "analytics",
             "status": "ready",

@@ -33,6 +33,11 @@ def main() -> None:
     print(f"  Random Forest Test MAE:      {metrics['forest_test_mae']:.3f}")
     print(f"  Random Forest Test R2:       {metrics['forest_test_r2']:.3f}")
     print()
+    print(f"  MLP Neural Network Train MAE: {metrics['mlp_mae']:.3f}")
+    print(f"  MLP Neural Network Train R2:  {metrics['mlp_r2']:.3f}")
+    print(f"  MLP Neural Network Test MAE:  {metrics['mlp_test_mae']:.3f}")
+    print(f"  MLP Neural Network Test R2:   {metrics['mlp_test_r2']:.3f}")
+    print()
     print(f"  Placeholder LSTM forecast: {lstm_forecast:.2f}")
     print(f"  Saved models: {MODEL_OUTPUT_DIR}")
 
